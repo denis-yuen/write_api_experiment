@@ -165,14 +165,22 @@ public class GitHubBuilder {
                 // ignore exceptions if reference already exists
                 if (!e.getMessage().contains("Reference already exists")) {
                     throw new RuntimeException(e);
+                } else {
+                    LOG.info("Git branch already exists");
                 }
             }
 
             // no API for creating files on releases? weird
-            Map<String, Object> releaseMap = new HashMap<>();
-            releaseMap.put("tag_name", releaseName);
-            releaseMap.put("name", releaseName);
-            Object post2 = githubClient.post("/repos/" + organization + "/" + repo + "/releases", releaseMap, Map.class);
+            try {
+                Map<String, Object> releaseMap = new HashMap<>();
+                releaseMap.put("tag_name", releaseName);
+                releaseMap.put("name", releaseName);
+                LOG.info("So far so good");
+                LOG.info(releaseMap.toString());
+                Object post2 = githubClient.post("/repos/" + organization + "/" + repo + "/releases", releaseMap, Map.class);
+            } catch (RequestException e) {
+                LOG.info("Git tag already exists");
+            }
             return true;
         } catch (IOException e) {
             throw new RuntimeException(e);

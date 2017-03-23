@@ -22,7 +22,9 @@ import io.swagger.server.model.ToolDescriptor;
 import io.swagger.server.model.ToolDockerfile;
 import io.swagger.server.model.ToolTests;
 import io.swagger.server.model.ToolVersion;
+import org.apache.derby.shared.common.error.DerbySQLIntegrityConstraintViolationException;
 import org.eclipse.jetty.http.HttpStatus;
+import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +51,7 @@ public class ToolsApiServiceImpl extends ToolsApiService {
 
     @Override
     public Response toolsGet(String id, String registry, String organization, String name, String toolname, String description, String author, String offset, Integer limit, SecurityContext securityContext) throws NotFoundException {
+        LOG.info("Trying");
         Iterator<Tool> toolIterator = toolDAO.listAllTools();
         return Response.ok().entity(Lists.newArrayList(toolIterator)).build();
     }
@@ -86,9 +89,13 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         //gitHubBuilder.createBranchAndRelease(, , body.getName());
         String[] split = id.split("/");
         gitHubBuilder.createBranchAndRelease(split[0], split[1], body.getName());
-        int insert = toolVersionDAO.insert(id, body.getName());
-        if (insert != 1){
-            return Response.notModified().build();
+        try {
+            int insert = toolVersionDAO.insert(id, body.getName());
+            if (insert != 1) {
+                LOG.info("Tool version already exists in database");
+                return Response.notModified().build();
+            }
+        } catch (UnableToExecuteStatementException e) {
         }
         ToolVersion byId = toolVersionDAO.findByToolVersion(id, body.getName());
         if (byId == null){
@@ -98,6 +105,7 @@ public class ToolsApiServiceImpl extends ToolsApiService {
     }
     @Override
     public Response toolsIdVersionsVersionIdDockerfileGet(String id, String versionId, SecurityContext securityContext) throws NotFoundException {
+        LOG.info("toolsIdVersionsVersionIdDockerfileGet");
         ToolDockerfile byId = toolDockerfileDAO.findById(id, versionId);
         return Response.ok().entity(byId).build();
     }
@@ -115,7 +123,11 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         }
         quayIoBuilder.triggerBuild(organization, organization, repo, repo, versionId);
 
-        toolDockerfileDAO.insert(id, versionId, dockerfile.getDockerfile());
+        try {
+            toolDockerfileDAO.insert(id, versionId, dockerfile.getDockerfile());
+        } catch (UnableToExecuteStatementException e) {
+            LOG.info("Dockerfile already exists in database");
+        }
         ToolDockerfile created = toolDockerfileDAO.findById(id, versionId);
         if (created != null) {
             return Response.ok().entity(created).build();
@@ -156,7 +168,11 @@ public class ToolsApiServiceImpl extends ToolsApiService {
     @Override
     public Response toolsIdVersionsVersionIdTypeDescriptorPost(String type, String id, String versionId, ToolDescriptor body, SecurityContext securityContext)
             throws NotFoundException {
-        toolDescriptorDAO.insert(id, versionId, type);
+        try{
+            toolDescriptorDAO.insert(id, versionId, type);
+        } catch (UnableToExecuteStatementException e) {
+            LOG.info("Descriptor already exists in database");
+        }
         // TODO: improve this, this looks slow and awkward
         ToolDescriptor byId = toolDescriptorDAO.findById(id, versionId, type);
         toolDescriptorDAO.update(byId, versionId, byId.getUrl());
@@ -195,12 +211,19 @@ public class ToolsApiServiceImpl extends ToolsApiService {
     public Response toolsPost(Tool body, SecurityContext securityContext) throws NotFoundException {
         // try creating a repo on github for this, this should probably be made into a transaction
         if (!gitHubBuilder.repoExists(body.getOrganization(), body.getToolname())) {
+            LOG.info("Repo does not exist");
             boolean repo = gitHubBuilder.createRepo(body.getOrganization(), body.getToolname());
             if (!repo) {
                 return Response.notModified("Could not create github repo").build();
+            } else {
+                LOG.info("Repo created");
             }
         }
-        toolDAO.insert(body.getId());
+        try {
+            toolDAO.insert(body.getId());
+        } catch (UnableToExecuteStatementException e) {
+            LOG.info("Tool already exists in database");
+        }
         toolDAO.update(body);
         Tool byId = toolDAO.findById(body.getId());
         if (byId != null) {
