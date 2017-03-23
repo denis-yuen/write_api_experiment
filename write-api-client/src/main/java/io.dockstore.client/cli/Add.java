@@ -1,11 +1,13 @@
 package io.dockstore.client.cli;
 
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
 import io.swagger.client.ApiException;
 import io.swagger.client.api.GAGHoptionalwriteApi;
 import io.swagger.client.model.Tool;
 import io.swagger.client.model.ToolDockerfile;
 import io.swagger.client.model.ToolVersion;
+import json.Output;
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,35 +35,49 @@ public class Add {
         LOGGER.info("Handling add");
         GAGHoptionalwriteApi api = WriteAPIServiceHelper.getGaghOptionalApi();
         Tool tool = createTool();
+        Tool responseTool;
         try {
-            Tool reponseTool = api.toolsPost(tool);
-            Assert.assertTrue(reponseTool.getOrganization().equals(ORGANIZATION_NAME));
+            responseTool = api.toolsPost(tool);
+            Assert.assertTrue(responseTool.getOrganization().equals(ORGANIZATION_NAME));
             LOGGER.info("Created git repo");
         } catch (ApiException e) {
-            e.printStackTrace();
+            LOGGER.error("ApiException: " + e.getMessage());
+            return;
         }
 
         // github repo has been created by now
         // next create release
         ToolVersion toolVersion = createToolVersion(version);
         try {
-            ToolVersion returnToolVersion = api.toolsIdVersionsPost(ORGANIZATION_NAME + "/" + REPO_NAME, toolVersion);
-            Assert.assertTrue(returnToolVersion != null);
+            ToolVersion responseToolVersion = api.toolsIdVersionsPost(ORGANIZATION_NAME + "/" + REPO_NAME, toolVersion);
+            Assert.assertTrue(responseToolVersion != null);
             LOGGER.info("Created git tag");
         } catch (ApiException e) {
-            e.printStackTrace();
+            LOGGER.error("ApiException: " + e.getMessage());
+            return;
         }
 
         // create files, this should trigger a quay.io build
         ToolDockerfile toolDockerfile = createToolDockerfile();
+        ToolDockerfile responseDockerfile;
         try {
-            ToolDockerfile returnedDockerfile = api
-                    .toolsIdVersionsVersionIdDockerfilePost(ORGANIZATION_NAME + "/" + REPO_NAME, version, toolDockerfile);
-            Assert.assertTrue(returnedDockerfile != null);
+            responseDockerfile = api.toolsIdVersionsVersionIdDockerfilePost(ORGANIZATION_NAME + "/" + REPO_NAME, version, toolDockerfile);
+            Assert.assertTrue(responseDockerfile != null);
         } catch (ApiException e) {
-            e.printStackTrace();
+            LOGGER.error("ApiException: " + e.getMessage());
+            return;
         }
+
+        // Building the URLs myself because
+        Output output = new Output();
+        output.setGithubURL(responseTool.getUrl());
+        output.setQuayioURL(responseDockerfile.getUrl());
+        output.setVersion(version);
+        Gson gson = new Gson();
+        String json = gson.toJson(output);
+        System.out.println(json);
     }
+
     private Tool createTool() {
         Tool tool = new Tool();
         tool.setId(ORGANIZATION_NAME + "/" + REPO_NAME);

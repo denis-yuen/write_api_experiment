@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 public class QuayIoBuilder {
 
     public static final String QUAY_URL = "https://quay.io/api/v1/";
+    public static final String QUAY_DOMAIN = "https://quay.io/";
     private static final Logger LOG = LoggerFactory.getLogger(QuayIoBuilder.class);
 
     private final ApiClient apiClient;
@@ -55,7 +56,7 @@ public class QuayIoBuilder {
             final String repo = quayOrg + '/' + quayRepo;
             RepositoryBuildRequest request = new RepositoryBuildRequest();
             request.setArchiveUrl("https://github.com/" + githubOrg + "/" + gitRepo + "/archive/" + release + ".tar.gz");
-            request.setSubdirectory("test_repo-" + release + "/");
+            request.setSubdirectory(quayRepo + "-" + release + "/");
             List<String> tags = new ArrayList<>();
             tags.add("latest");
             request.setDockerTags(tags);
@@ -91,5 +92,10 @@ public class QuayIoBuilder {
         final String repoUrl = QUAY_URL + "repository/" + namespace + "/" + repo;
         Optional<String> responseAsString = ResourceUtilities.asString(repoUrl, token, httpClient);
         return responseAsString.map(s -> true).orElse(false);
+    }
+
+    public String getQuayUrl(String namespace, String repo) {
+        final String repoUrl = QUAY_DOMAIN + "repository/" + namespace + "/" + repo;
+        return repoUrl;
     }
 }

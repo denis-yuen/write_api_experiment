@@ -96,6 +96,7 @@ public class ToolsApiServiceImpl extends ToolsApiService {
                 return Response.notModified().build();
             }
         } catch (UnableToExecuteStatementException e) {
+            LOG.info("Tool version already exists in database");
         }
         ToolVersion byId = toolVersionDAO.findByToolVersion(id, body.getName());
         if (byId == null){
@@ -120,6 +121,7 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         gitHubBuilder.createBranchAndRelease(organization, repo, versionId);
         if (!quayIoBuilder.repoExists(organization, repo)) {
             quayIoBuilder.createRepo(organization, repo, repo);
+            LOG.info("Created quay.io repo");
         }
         quayIoBuilder.triggerBuild(organization, organization, repo, repo, versionId);
 
@@ -129,7 +131,10 @@ public class ToolsApiServiceImpl extends ToolsApiService {
             LOG.info("Dockerfile already exists in database");
         }
         ToolDockerfile created = toolDockerfileDAO.findById(id, versionId);
+
         if (created != null) {
+            created.setUrl(quayIoBuilder.getQuayUrl(organization, repo));
+            LOG.info(created.getUrl());
             return Response.ok().entity(created).build();
         }
 
@@ -224,6 +229,8 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         } catch (UnableToExecuteStatementException e) {
             LOG.info("Tool already exists in database");
         }
+        String gitUrl = gitHubBuilder.getGitUrl(body.getOrganization(), body.getToolname());
+        body.setUrl(gitUrl);
         toolDAO.update(body);
         Tool byId = toolDAO.findById(body.getId());
         if (byId != null) {

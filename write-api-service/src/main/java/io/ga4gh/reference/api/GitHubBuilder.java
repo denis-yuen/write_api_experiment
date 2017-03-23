@@ -79,6 +79,7 @@ public class GitHubBuilder {
             Repository repoTemplate = new Repository();
             repoTemplate.setName(repo);
             service.createRepository(organization, repoTemplate);
+
             // need to initialize the new repo, oddly not possible via API
             Map<String, Object> map = new HashMap<>();
             byte[] encode = Base64.getEncoder().encode("Test".getBytes(StandardCharsets.UTF_8));
@@ -101,6 +102,16 @@ public class GitHubBuilder {
         } catch (IOException e) {
             return false;
         }
+    }
+
+    public String getGitUrl(String owner, String name) {
+        try {
+            Repository repository = service.getRepository(owner, name);
+            return repository.getHtmlUrl();
+        } catch (IOException e) {
+            return null;
+        }
+
     }
 
     public boolean stashFile(String organization, String repo, String path, String content) {
@@ -175,7 +186,6 @@ public class GitHubBuilder {
                 Map<String, Object> releaseMap = new HashMap<>();
                 releaseMap.put("tag_name", releaseName);
                 releaseMap.put("name", releaseName);
-                LOG.info("So far so good");
                 LOG.info(releaseMap.toString());
                 Object post2 = githubClient.post("/repos/" + organization + "/" + repo + "/releases", releaseMap, Map.class);
             } catch (RequestException e) {
