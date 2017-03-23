@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * @since 22/03/17
  */
 
-public class Client {
+public final class Client {
     public static final int PADDING = 3;
     public static final int GENERIC_ERROR = 1; // General error, not yet described by an error type
     public static final int CONNECTION_ERROR = 150; // Connection exception
@@ -38,6 +38,9 @@ public class Client {
     public static final int COMMAND_ERROR = 10; // Command is not successful, but not due to errors
     public static final int ENTRY_NOT_FOUND = 12; // Entry could not be found locally or remotely
     private static final Logger LOGGER = LoggerFactory.getLogger(Client.class);
+
+    private Client() {
+    }
 
     /*
      * Main Method
@@ -82,7 +85,8 @@ public class Client {
                 if (commandAdd.help) {
                     jc.usage("add");
                 } else {
-                    Add.handleAdd(commandAdd.dockerfile, commandAdd.descriptor, commandAdd.secondaryDescriptor, commandAdd.version);
+                    Add add = new Add();
+                    add.handleAdd(commandAdd.dockerfile, commandAdd.descriptor, commandAdd.secondaryDescriptor, commandAdd.version);
                 }
                 break;
             case "publish":
