@@ -1,5 +1,5 @@
-quayioToken: SdIZnugWvnMf9UxB5CmLHLUNWIqtcW66RbqkEEvY
-githubToken: 5aee8847a811e6cd9be0abf37ec34cbfd57d5e9f
+githubToken: dummy-token
+quayioToken: dummy-token
 
 server:
   rootPath: /api/ga4gh/v1
