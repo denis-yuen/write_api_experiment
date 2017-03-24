@@ -1,5 +1,7 @@
 package io.dockstore.client.cli;
 
+import java.io.File;
+
 import com.beust.jcommander.ParameterException;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -72,10 +74,15 @@ public class ClientTest {
 
     @Test
     public void addDockerfileWithDockerfileAndDescriptorWithDescriptor() {
-        String[] argv = { "add", "--Dockerfile", "dockerfile", "--cwl-file", "descriptor" };
+        File descriptor = new File("src/test/resources/Descriptor");
+        String descriptorPath = descriptor.getAbsolutePath();
+        File dockerfile = new File("src/test/resources/Dockerfile");
+        String dockerfilePath = dockerfile.getAbsolutePath();
+        String[] argv = { "add", "--Dockerfile", "dockerfile", "--cwl-file", descriptorPath };
         Client.main(argv);
         String log = systemOutRule.getLog();
         Assert.assertTrue(log.contains("Handling add"));
+        Assert.assertTrue(log.contains("Successfully added."));
     }
 
     @Test(expected = ParameterException.class)

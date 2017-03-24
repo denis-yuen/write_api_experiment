@@ -85,7 +85,10 @@ public class GitHubBuilder {
             byte[] encode = Base64.getEncoder().encode("Test".getBytes(StandardCharsets.UTF_8));
             map.put("content", new String(encode, StandardCharsets.UTF_8));
             map.put("message", "test");
-            githubClient.put("/repos/" + organization + "/" + repo + "/contents/readme.md", map, Map.class);
+
+            String uri = "/repos/" + organization + "/" + repo + "/contents/readme.md";
+            LOG.info("GIT PUT: " + uri);
+            githubClient.put(uri, map, Map.class);
         } catch (RequestException e) {
             LOG.error("Was not able to create " + organization + "/" + repo);
             // was not able to create the repo
@@ -121,7 +124,7 @@ public class GitHubBuilder {
             try {
                 contents = cService.getContents(repository, path);
             } catch (IOException e) {
-                LOG.info("IO Exception: " + e.getMessage());
+                LOG.info("File likely does not exist. IOException: " + e.getMessage());
             }
             if (contents.isEmpty()) {
                 // no API for creating files? weird
@@ -129,6 +132,7 @@ public class GitHubBuilder {
                 byte[] encode = Base64.getEncoder().encode(content.getBytes(StandardCharsets.UTF_8));
                 map.put("content", new String(encode, StandardCharsets.UTF_8));
                 map.put("message", "test");
+                LOG.info("Creating file...");
                 githubClient.put("/repos/" + organization + "/" + repo + "/contents/" + path, map, Map.class);
                 return true;
             }
@@ -140,61 +144,88 @@ public class GitHubBuilder {
 
     public boolean createBranchAndRelease(String organization, String repo, String releaseName) {
         try {
-            try {
-                Map<String, Object> map = lowLevelGetRequest(
-                        "https://api.github.com/repos/" + organization + "/" + repo + "/releases/tags/" + releaseName);
-                int releaseNumber = Double.valueOf((double)map.get("id")).intValue();
-                // delete the release
-                githubClient.delete("/repos/" + organization + "/" + repo + "/releases/" + releaseNumber);
-                // delete the tag (makes the next release "stay" in the wrong place)
-                githubClient.delete("/repos/" + organization + "/" + repo + "/git/refs/tags/" + releaseName);
-            } catch (HttpResponseException e) {
-                // ignore 404s
-                if (e.getStatusCode() != HttpStatus.SC_NOT_FOUND) {
-                    throw new RuntimeException(e);
-                }
-            }
-            // find out the default branch and branch version from there
-            Repository repository = service.getRepository(organization, repo);
-            String stringId = repository.generateId();
-            String defaultBranch = repository.getDefaultBranch();
-            RepositoryId fromId = RepositoryId.createFromId(stringId);
-            // might use reference later, but cannot figure out how to "target" a reference for branching
-            //Reference reference = dService.getReference(fromId, "heads/" + defaultBranch);
+            Map<String, Object> map = lowLevelGetRequest(
+                    "https://api.github.com/repos/" + organization + "/" + repo + "/releases/tags/" + releaseName);
+            int releaseNumber = Double.valueOf((double)map.get("id")).intValue();
+            // delete the release
+            String uri = "/repos/" + organization + "/" + repo + "/releases/" + releaseNumber;
+            LOG.info("GIT DELETE: " + uri);
+            githubClient.delete(uri);
+            // delete the tag (makes the next release "stay" in the wrong place)
+            String uri1 = "/repos/" + organization + "/" + repo + "/git/refs/tags/" + releaseName;
+            LOG.info("GIT DELETE: " + uri1);
+            githubClient.delete(uri1);
 
-            List<RepositoryCommit> commits = commitService.getCommits(fromId);
-            // found latest sha
-            RepositoryCommit repositoryCommit = commits.get(commits.size() - 1);
-
-            try {
-                // create branch if needed
-                Map<String, Object> branchMap = new HashMap<>();
-                branchMap.put("ref", "refs/heads/" + releaseName);
-                branchMap.put("sha", repositoryCommit.getSha());
-                Object post1 = githubClient.post("/repos/" + organization + "/" + repo + "/git/refs", branchMap, Map.class);
-            } catch (RequestException e) {
-                // ignore exceptions if reference already exists
-                if (!e.getMessage().contains("Reference already exists")) {
-                    throw new RuntimeException(e);
-                } else {
-                    LOG.info("Git branch already exists");
-                }
+            LOG.info("Deleted tag");
+        } catch (HttpResponseException e) {
+            // ignore 404s
+            if (e.getStatusCode() != HttpStatus.SC_NOT_FOUND) {
+                LOG.info("Could not delete release/tag");
+                throw new RuntimeException(e);
             }
-
-            // no API for creating files on releases? weird
-            try {
-                Map<String, Object> releaseMap = new HashMap<>();
-                releaseMap.put("tag_name", releaseName);
-                releaseMap.put("name", releaseName);
-                LOG.info(releaseMap.toString());
-                Object post2 = githubClient.post("/repos/" + organization + "/" + repo + "/releases", releaseMap, Map.class);
-            } catch (RequestException e) {
-                LOG.info("Git tag already exists");
-            }
-            return true;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        LOG.info("Deleting repos");
+        // find out the default branch and branch version from there
+        Repository repository = null;
+        try {
+            repository = service.getRepository(organization, repo);
+        } catch (IOException e) {
+            LOG.info("Could not get repository.");
+            throw new RuntimeException(e);
+        }
+        String stringId = repository.generateId();
+        String defaultBranch = repository.getDefaultBranch();
+        RepositoryId fromId = RepositoryId.createFromId(stringId);
+        // might use reference later, but cannot figure out how to "target" a reference for branching
+        //Reference reference = dService.getReference(fromId, "heads/" + defaultBranch);
+
+        List<RepositoryCommit> commits = null;
+        try {
+            commits = commitService.getCommits(fromId);
+        } catch (IOException e) {
+            LOG.info("Could not get commits");
+            throw new RuntimeException(e);
+        }
+        // found latest sha
+        RepositoryCommit repositoryCommit = commits.get(commits.size() - 1);
+
+        try {
+            // create branch if needed
+            Map<String, Object> branchMap = new HashMap<>();
+            branchMap.put("ref", "refs/heads/" + releaseName);
+            branchMap.put("sha", repositoryCommit.getSha());
+            String uri = "/repos/" + organization + "/" + repo + "/git/refs";
+            LOG.info("GIT POST: " + uri);
+            Object post1 = githubClient.post(uri, branchMap, Map.class);
+        } catch (RequestException e) {
+            // ignore exceptions if reference already exists
+            if (!e.getMessage().contains("Reference already exists")) {
+                throw new RuntimeException(e);
+            } else {
+                LOG.info("Git branch already exists");
+            }
+        } catch (IOException e1) {
+            LOG.info("Could not create branch");
+            throw new RuntimeException(e1);
+        }
+
+        // no API for creating files on releases? weird
+        try {
+            Map<String, Object> releaseMap = new HashMap<>();
+            releaseMap.put("tag_name", releaseName);
+            releaseMap.put("name", releaseName);
+            String uri = "/repos/" + organization + "/" + repo + "/releases";
+            LOG.info("GIT POST: " + uri);
+            Object post2 = githubClient.post(uri, releaseMap, Map.class);
+        } catch (RequestException e) {
+            LOG.info("Git tag already exists");
+        } catch (IOException e1) {
+            LOG.info("Could not create release/tag");
+            throw new RuntimeException(e1);
+        }
+        return true;
     }
 
     /**

@@ -22,7 +22,6 @@ import io.swagger.server.model.ToolDescriptor;
 import io.swagger.server.model.ToolDockerfile;
 import io.swagger.server.model.ToolTests;
 import io.swagger.server.model.ToolVersion;
-import org.apache.derby.shared.common.error.DerbySQLIntegrityConstraintViolationException;
 import org.eclipse.jetty.http.HttpStatus;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.slf4j.Logger;
@@ -40,7 +39,7 @@ public class ToolsApiServiceImpl extends ToolsApiService {
     private final QuayIoBuilder quayIoBuilder;
 
     public ToolsApiServiceImpl(ToolDAO dao, ToolVersionDAO toolVersionDAO, ToolDescriptorDAO toolDescriptorDAO,
-            ToolDockerfileDAO toolDockerfileDAO, GitHubBuilder gitHubBuilder, QuayIoBuilder quayIoBuilder){
+            ToolDockerfileDAO toolDockerfileDAO, GitHubBuilder gitHubBuilder, QuayIoBuilder quayIoBuilder) {
         this.toolDAO = dao;
         this.toolVersionDAO = toolVersionDAO;
         this.toolDescriptorDAO = toolDescriptorDAO;
@@ -50,11 +49,13 @@ public class ToolsApiServiceImpl extends ToolsApiService {
     }
 
     @Override
-    public Response toolsGet(String id, String registry, String organization, String name, String toolname, String description, String author, String offset, Integer limit, SecurityContext securityContext) throws NotFoundException {
+    public Response toolsGet(String id, String registry, String organization, String name, String toolname, String description,
+            String author, String offset, Integer limit, SecurityContext securityContext) throws NotFoundException {
         LOG.info("Trying");
         Iterator<Tool> toolIterator = toolDAO.listAllTools();
         return Response.ok().entity(Lists.newArrayList(toolIterator)).build();
     }
+
     @Override
     public Response toolsIdGet(String id, SecurityContext securityContext) throws NotFoundException {
         Tool byId = toolDAO.findById(id);
@@ -63,31 +64,36 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         }
         return Response.status(HttpStatus.NOT_FOUND_404).build();
     }
+
     @Override
     public Response toolsIdPut(String id, Tool body, SecurityContext securityContext) throws NotFoundException {
         // ensure that id matches
-        if (!Objects.equals(id, body.getId())){
+        if (!Objects.equals(id, body.getId())) {
             return Response.notModified().build();
         }
         int update = toolDAO.update(body);
-        if (update != 1){
+        if (update != 1) {
             return Response.notModified().build();
         }
         return Response.ok().entity(toolDAO.findById(id)).build();
     }
+
     @Override
     public Response toolsIdVersionsGet(String id, SecurityContext securityContext) throws NotFoundException {
         Iterator<ToolVersion> toolVersionIterator = toolVersionDAO.listToolVersionsForTool(id);
-        if (!toolVersionIterator.hasNext()){
+        if (!toolVersionIterator.hasNext()) {
             return Response.noContent().build();
         }
         return Response.ok().entity(Lists.newArrayList(toolVersionIterator)).build();
     }
+
     @Override
     public Response toolsIdVersionsPost(String id, ToolVersion body, SecurityContext securityContext) throws NotFoundException {
         // refresh the release on github
         //gitHubBuilder.createBranchAndRelease(, , body.getName());
         String[] split = id.split("/");
+        LOG.info("Creating branch...");
+        LOG.info(split[0], split[1], body.getName());
         gitHubBuilder.createBranchAndRelease(split[0], split[1], body.getName());
         try {
             int insert = toolVersionDAO.insert(id, body.getName());
@@ -99,21 +105,23 @@ public class ToolsApiServiceImpl extends ToolsApiService {
             LOG.info("Tool version already exists in database");
         }
         ToolVersion byId = toolVersionDAO.findByToolVersion(id, body.getName());
-        if (byId == null){
+        if (byId == null) {
             return Response.notModified().build();
         }
         return Response.ok().entity(byId).build();
     }
+
     @Override
-    public Response toolsIdVersionsVersionIdDockerfileGet(String id, String versionId, SecurityContext securityContext) throws NotFoundException {
+    public Response toolsIdVersionsVersionIdDockerfileGet(String id, String versionId, SecurityContext securityContext)
+            throws NotFoundException {
         LOG.info("toolsIdVersionsVersionIdDockerfileGet");
         ToolDockerfile byId = toolDockerfileDAO.findById(id, versionId);
         return Response.ok().entity(byId).build();
     }
 
     @Override
-    public Response toolsIdVersionsVersionIdDockerfilePost(String id, String versionId, ToolDockerfile dockerfile, SecurityContext securityContext)
-            throws NotFoundException {
+    public Response toolsIdVersionsVersionIdDockerfilePost(String id, String versionId, ToolDockerfile dockerfile,
+            SecurityContext securityContext) throws NotFoundException {
         String[] split = id.split("/");
         String organization = split[0];
         String repo = split[1];
@@ -144,7 +152,7 @@ public class ToolsApiServiceImpl extends ToolsApiService {
     @Override
     public Response toolsIdVersionsVersionIdGet(String id, String versionId, SecurityContext securityContext) throws NotFoundException {
         ToolVersion byId = toolVersionDAO.findByToolVersion(id, versionId);
-        if (byId == null){
+        if (byId == null) {
             return Response.notModified().build();
         }
         return Response.ok().entity(byId).build();
@@ -154,60 +162,70 @@ public class ToolsApiServiceImpl extends ToolsApiService {
     public Response toolsIdVersionsVersionIdPut(String id, String versionId, ToolVersion body, SecurityContext securityContext)
             throws NotFoundException {
         // ensure that id matches
-        if (!Objects.equals(versionId, body.getId())){
+        if (!Objects.equals(versionId, body.getId())) {
             return Response.notModified().build();
         }
         int update = toolVersionDAO.update(body);
-        if (update != 1){
+        if (update != 1) {
             return Response.notModified().build();
         }
         return Response.ok().entity(toolVersionDAO.findByToolVersion(id, versionId)).build();
     }
 
     @Override
-    public Response toolsIdVersionsVersionIdTypeDescriptorGet(String type, String id, String versionId, SecurityContext securityContext) throws NotFoundException {
+    public Response toolsIdVersionsVersionIdTypeDescriptorGet(String type, String id, String versionId, SecurityContext securityContext)
+            throws NotFoundException {
         ToolDescriptor byId = toolDescriptorDAO.findById(id, versionId, type);
         return Response.ok().entity(byId).build();
     }
 
     @Override
-    public Response toolsIdVersionsVersionIdTypeDescriptorPost(String type, String id, String versionId, ToolDescriptor body, SecurityContext securityContext)
-            throws NotFoundException {
-        try{
-            toolDescriptorDAO.insert(id, versionId, type);
+    public Response toolsIdVersionsVersionIdTypeDescriptorPost(String type, String id, String versionId, ToolDescriptor body,
+            SecurityContext securityContext) throws NotFoundException {
+        String[] split = id.split("/");
+        String organization = split[0];
+        String repo = split[1];
+        try {
+            toolDescriptorDAO.insert(body.getUrl(), type, body.getUrl(), id, versionId);
         } catch (UnableToExecuteStatementException e) {
             LOG.info("Descriptor already exists in database");
+
         }
+        gitHubBuilder.stashFile(organization, repo, body.getUrl(), body.getDescriptor());
         // TODO: improve this, this looks slow and awkward
         ToolDescriptor byId = toolDescriptorDAO.findById(id, versionId, type);
+        LOG.info("Descriptor version: " + versionId);
+        LOG.info("Descriptor path: " + byId.getUrl());
         toolDescriptorDAO.update(byId, versionId, byId.getUrl());
         byId = toolDescriptorDAO.findById(id, versionId, type);
         return Response.ok().entity(byId).build();
     }
 
     @Override
-    public Response toolsIdVersionsVersionIdTypeDescriptorRelativePathGet(String type, String id, String versionId, String relativePath, SecurityContext securityContext) throws NotFoundException {
+    public Response toolsIdVersionsVersionIdTypeDescriptorRelativePathGet(String type, String id, String versionId, String relativePath,
+            SecurityContext securityContext) throws NotFoundException {
         ToolDescriptor byPath = toolDescriptorDAO.findByPath(id, versionId, relativePath);
         return Response.ok().entity(byPath).build();
     }
 
     @Override
-    public Response toolsIdVersionsVersionIdTypeDescriptorRelativePathPost(String type, String id, String versionId, String relativePath
-            , ToolDescriptor body, SecurityContext securityContext) throws NotFoundException {
+    public Response toolsIdVersionsVersionIdTypeDescriptorRelativePathPost(String type, String id, String versionId, String relativePath,
+            ToolDescriptor body, SecurityContext securityContext) throws NotFoundException {
         // hook up to github
 
         return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "magic!")).build();
     }
 
     @Override
-    public Response toolsIdVersionsVersionIdTypeTestsGet(String type, String id, String versionId, SecurityContext securityContext) throws NotFoundException {
+    public Response toolsIdVersionsVersionIdTypeTestsGet(String type, String id, String versionId, SecurityContext securityContext)
+            throws NotFoundException {
         // do some magic!
         return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "magic!")).build();
     }
 
     @Override
-    public Response toolsIdVersionsVersionIdTypeTestsPut(String type, String id, String versionId, List<ToolTests> body, SecurityContext securityContext)
-            throws NotFoundException {
+    public Response toolsIdVersionsVersionIdTypeTestsPut(String type, String id, String versionId, List<ToolTests> body,
+            SecurityContext securityContext) throws NotFoundException {
         // do some magic!
         return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "magic!")).build();
     }
