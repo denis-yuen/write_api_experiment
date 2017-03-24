@@ -166,7 +166,6 @@ public class GitHubBuilder {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        LOG.info("Deleting repos");
         // find out the default branch and branch version from there
         Repository repository = null;
         try {

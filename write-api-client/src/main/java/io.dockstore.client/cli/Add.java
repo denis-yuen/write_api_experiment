@@ -20,6 +20,9 @@ import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static io.dockstore.client.cli.ExceptionHelper.CLIENT_ERROR;
+import static io.dockstore.client.cli.ExceptionHelper.errorMessage;
+
 /**
  * @author gluu
  * @since 23/03/17
@@ -43,14 +46,14 @@ public class Add {
         LOGGER.info("Handling add...");
         GAGHoptionalwriteApi api = WriteAPIServiceHelper.getGaghOptionalApi();
         Tool tool = createTool();
-        Tool responseTool;
+        Tool responseTool = null;
         try {
             responseTool = api.toolsPost(tool);
+            Assert.assertTrue(responseTool != null);
             Assert.assertTrue(responseTool.getOrganization().equals(ORGANIZATION_NAME));
             LOGGER.info("Created repository on git.");
         } catch (ApiException e) {
-            LOGGER.error("ApiException: " + e.getMessage());
-            return;
+            errorMessage("Could not create repository: " + e.getMessage(), CLIENT_ERROR);
         }
 
         // github repo has been created by now
@@ -62,12 +65,11 @@ public class Add {
             Assert.assertTrue(responseToolVersion != null);
             LOGGER.info("Created tag/release on git.");
         } catch (ApiException e) {
-            LOGGER.error("ApiException: " + e.getMessage());
-            return;
+            errorMessage("Could not create tag/release: " + e.getMessage(), CLIENT_ERROR);
         }
 
         // create dockerfile, this should trigger a quay.io build
-        ToolDockerfile toolDockerfile = createToolDockerfile();
+        ToolDockerfile toolDockerfile = createToolDockerfile(dockerfile);
         ToolDockerfile responseDockerfile = null;
         if (toolDockerfile != null) {
             try {
@@ -75,8 +77,7 @@ public class Add {
                 Assert.assertTrue(responseDockerfile != null);
                 LOGGER.info("Created dockerfile on git.");
             } catch (ApiException e) {
-                LOGGER.error("ApiException: " + e.getMessage());
-                return;
+                errorMessage("Could not create Dockerfile: " + e.getMessage(), CLIENT_ERROR);
             }
         }
 
@@ -90,8 +91,7 @@ public class Add {
                 Assert.assertTrue(responseDescriptor != null);
                 LOGGER.info("Created descriptor on git.");
             } catch (ApiException e) {
-                LOGGER.error("ApiException: " + e.getMessage());
-                return;
+                errorMessage("Could not create descriptor file" + e.getMessage(), CLIENT_ERROR);
             }
         }
 
@@ -122,9 +122,17 @@ public class Add {
         return toolVersion;
     }
 
-    private ToolDockerfile createToolDockerfile() {
+    private ToolDockerfile createToolDockerfile(String stringPath) {
         ToolDockerfile toolDockerfile = new ToolDockerfile();
-        toolDockerfile.setDockerfile("FROM ubuntu:12.04");
+        Path path = Paths.get(stringPath);
+        String fileName = path.getFileName().toString();
+        try {
+            String content = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+            toolDockerfile.setDockerfile(content);
+            toolDockerfile.setUrl(fileName);
+        } catch (IOException e) {
+            errorMessage("Could not read dockerfile" + e.getMessage(), CLIENT_ERROR);
+        }
         return toolDockerfile;
     }
 
@@ -138,8 +146,7 @@ public class Add {
             toolDescriptor.setType(ToolDescriptor.TypeEnum.CWL);
             toolDescriptor.setUrl(fileName);
         } catch (IOException e) {
-            LOGGER.error("Could not read descriptor file");
-            return null;
+            errorMessage("Could not read descriptor file" + e.getMessage(), CLIENT_ERROR);
         }
         return toolDescriptor;
     }

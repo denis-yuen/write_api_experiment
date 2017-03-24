@@ -78,7 +78,7 @@ public class ClientTest {
         String descriptorPath = descriptor.getAbsolutePath();
         File dockerfile = new File("src/test/resources/Dockerfile");
         String dockerfilePath = dockerfile.getAbsolutePath();
-        String[] argv = { "add", "--Dockerfile", "dockerfile", "--cwl-file", descriptorPath };
+        String[] argv = { "add", "--Dockerfile", dockerfilePath, "--cwl-file", descriptorPath };
         Client.main(argv);
         String log = systemOutRule.getLog();
         Assert.assertTrue(log.contains("Handling add"));
