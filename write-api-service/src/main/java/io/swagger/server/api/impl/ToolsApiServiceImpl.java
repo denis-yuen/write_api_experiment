@@ -93,7 +93,9 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         //gitHubBuilder.createBranchAndRelease(, , body.getName());
         String[] split = id.split("/");
         LOG.info("Creating branch...");
-        LOG.info(split[0], split[1], body.getName());
+        LOG.info(split[0]);
+        LOG.info(split[1]);
+        LOG.info(body.getName());
         gitHubBuilder.createBranchAndRelease(split[0], split[1], body.getName());
         try {
             int insert = toolVersionDAO.insert(id, body.getName());
@@ -125,7 +127,7 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         String[] split = id.split("/");
         String organization = split[0];
         String repo = split[1];
-        gitHubBuilder.stashFile(organization, repo, "Dockerfile", dockerfile.getDockerfile());
+        gitHubBuilder.stashFile(organization, repo, dockerfile.getUrl(), dockerfile.getDockerfile(), versionId);
         gitHubBuilder.createBranchAndRelease(organization, repo, versionId);
         if (!quayIoBuilder.repoExists(organization, repo)) {
             quayIoBuilder.createRepo(organization, repo, repo);
@@ -185,17 +187,18 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         String[] split = id.split("/");
         String organization = split[0];
         String repo = split[1];
+
+        String url = "https://github.com/" + id + "/blob/" + versionId + "/" + body.getUrl();
+        LOG.info("The URL of the descriptor is: " + url);
         try {
-            toolDescriptorDAO.insert(body.getUrl(), type, body.getUrl(), id, versionId);
+            toolDescriptorDAO.insert(url, type, body.getUrl(), id, versionId);
         } catch (UnableToExecuteStatementException e) {
             LOG.info("Descriptor already exists in database");
 
         }
-        gitHubBuilder.stashFile(organization, repo, body.getUrl(), body.getDescriptor());
+        gitHubBuilder.stashFile(organization, repo, body.getUrl(), body.getDescriptor(), versionId);
         // TODO: improve this, this looks slow and awkward
         ToolDescriptor byId = toolDescriptorDAO.findById(id, versionId, type);
-        LOG.info("Descriptor version: " + versionId);
-        LOG.info("Descriptor path: " + byId.getUrl());
         toolDescriptorDAO.update(byId, versionId, byId.getUrl());
         byId = toolDescriptorDAO.findById(id, versionId, type);
         return Response.ok().entity(byId).build();
@@ -238,8 +241,6 @@ public class ToolsApiServiceImpl extends ToolsApiService {
             boolean repo = gitHubBuilder.createRepo(body.getOrganization(), body.getToolname());
             if (!repo) {
                 return Response.notModified("Could not create github repo").build();
-            } else {
-                LOG.info("Repo created");
             }
         }
         try {

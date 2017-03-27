@@ -16,7 +16,6 @@ import io.swagger.client.model.ToolDescriptor;
 import io.swagger.client.model.ToolDockerfile;
 import io.swagger.client.model.ToolVersion;
 import json.Output;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,30 +26,37 @@ import static io.dockstore.client.cli.ExceptionHelper.errorMessage;
  * @author gluu
  * @since 23/03/17
  */
-public class Add {
+class Add {
     // an organization for both GitHub and Quay.io where repos will be created (and deleted)
-    public static final String ORGANIZATION_NAME = "dockstore-testing";
+    private static final String ORGANIZATION_NAME = "dockstore-testing";
     // repo name for GitHub and Quay.io, this repo will be created and deleted
-    public static final String REPO_NAME = "test_repo2";
+    private static final String REPO_NAME = "test_repo3";
     private static final Logger LOGGER = LoggerFactory.getLogger(Add.class);
 
-    public Add() {
+    Add() {
     }
 
-    public void handleAdd(String dockerfile, String descriptor, String secondaryDescriptor, String version) {
+    void handleAdd(String dockerfile, String descriptor, String secondaryDescriptor, String version) {
         // watch out, versions can't start with a "v"
 
         if (version == null) {
             version = "1.0";
         }
         LOGGER.info("Handling add...");
+        ToolDockerfile toolDockerfile = createToolDockerfile(dockerfile);
+        ToolDescriptor toolDescriptor = createDescriptor(descriptor);
+        if (toolDockerfile == null) {
+            errorMessage("Dockerfile is empty.", CLIENT_ERROR);
+        } else if (toolDescriptor == null) {
+            errorMessage("Descriptor is empty.", CLIENT_ERROR);
+        }
         GAGHoptionalwriteApi api = WriteAPIServiceHelper.getGaghOptionalApi();
         Tool tool = createTool();
         Tool responseTool = null;
         try {
             responseTool = api.toolsPost(tool);
-            Assert.assertTrue(responseTool != null);
-            Assert.assertTrue(responseTool.getOrganization().equals(ORGANIZATION_NAME));
+            assert (responseTool != null);
+            assert (responseTool.getOrganization().equals(ORGANIZATION_NAME));
             LOGGER.info("Created repository on git.");
         } catch (ApiException e) {
             errorMessage("Could not create repository: " + e.getMessage(), CLIENT_ERROR);
@@ -62,42 +68,55 @@ public class Add {
         ToolVersion responseToolVersion;
         try {
             responseToolVersion = api.toolsIdVersionsPost(ORGANIZATION_NAME + "/" + REPO_NAME, toolVersion);
-            Assert.assertTrue(responseToolVersion != null);
-            LOGGER.info("Created tag/release on git.");
+            assert (responseToolVersion != null);
+            LOGGER.debug("Created branch, tag, and release on git.");
         } catch (ApiException e) {
             errorMessage("Could not create tag/release: " + e.getMessage(), CLIENT_ERROR);
         }
 
         // create dockerfile, this should trigger a quay.io build
-        ToolDockerfile toolDockerfile = createToolDockerfile(dockerfile);
+
         ToolDockerfile responseDockerfile = null;
-        if (toolDockerfile != null) {
-            try {
-                responseDockerfile = api.toolsIdVersionsVersionIdDockerfilePost(ORGANIZATION_NAME + "/" + REPO_NAME, version, toolDockerfile);
-                Assert.assertTrue(responseDockerfile != null);
-                LOGGER.info("Created dockerfile on git.");
-            } catch (ApiException e) {
-                errorMessage("Could not create Dockerfile: " + e.getMessage(), CLIENT_ERROR);
-            }
+        try {
+            responseDockerfile = api.toolsIdVersionsVersionIdDockerfilePost(ORGANIZATION_NAME + "/" + REPO_NAME, version, toolDockerfile);
+            assert (responseDockerfile != null);
+            LOGGER.info("Created dockerfile on git.");
+        } catch (ApiException e) {
+            errorMessage("Could not create Dockerfile: " + e.getMessage(), CLIENT_ERROR);
         }
 
         // Create descriptor file
-        ToolDescriptor toolDescriptor = createDescriptor(descriptor);
         ToolDescriptor responseDescriptor;
-        if (toolDescriptor != null) {
+        try {
+            assert toolDescriptor != null;
+            responseDescriptor = api
+                    .toolsIdVersionsVersionIdTypeDescriptorPost(toolDescriptor.getType().toString(), ORGANIZATION_NAME + "/" + REPO_NAME,
+                            version, toolDescriptor);
+            assert (responseDescriptor != null);
+            LOGGER.info("Created descriptor on git.");
+        } catch (ApiException e) {
+            errorMessage("Could not create descriptor file" + e.getMessage(), CLIENT_ERROR);
+        }
+
+        // Create secondary descriptor file
+        if (secondaryDescriptor != null) {
+            ToolDescriptor secondaryToolDescriptor = createDescriptor(secondaryDescriptor);
+            ToolDescriptor responseSecondaryDescriptor;
             try {
-                responseDescriptor = api.toolsIdVersionsVersionIdTypeDescriptorPost(toolDescriptor.getType().toString(),
-                        ORGANIZATION_NAME + "/" + REPO_NAME, version, toolDescriptor);
-                Assert.assertTrue(responseDescriptor != null);
-                LOGGER.info("Created descriptor on git.");
+                responseSecondaryDescriptor = api.toolsIdVersionsVersionIdTypeDescriptorPost(secondaryToolDescriptor.getType().toString(),
+                        ORGANIZATION_NAME + "/" + REPO_NAME, version, secondaryToolDescriptor);
+                assert (responseSecondaryDescriptor != null);
+                LOGGER.info("Created secondary descriptor on git.");
             } catch (ApiException e) {
-                errorMessage("Could not create descriptor file" + e.getMessage(), CLIENT_ERROR);
+                errorMessage("Could not create secondary descriptor file" + e.getMessage(), CLIENT_ERROR);
             }
         }
 
         // Building the URLs myself because life is hard
         Output output = new Output();
+        assert responseTool != null;
         output.setGithubURL(responseTool.getUrl());
+        assert responseDockerfile != null;
         output.setQuayioURL(responseDockerfile.getUrl());
         output.setVersion(version);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();

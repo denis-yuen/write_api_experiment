@@ -47,7 +47,6 @@ public interface ToolDescriptorDAO {
     Iterator<ToolDescriptor> listDescriptorsForTool(@Bind("version") String toolVersionId);
 
     @SqlUpdate("update descriptor set "
-            + "url = :url,"
             + "type = :type,"
             + "descriptor_path = :descriptor_path"
             + " where version = :version and descriptor_path = :descriptor_path")

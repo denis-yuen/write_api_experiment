@@ -69,7 +69,7 @@ public class GitHubBuilder {
         if (!builder.repoExists(organization, repo)) {
             builder.createRepo(organization, repo);
         }
-        builder.stashFile(organization, repo, "Dockerfile", "FROM ubuntu:12.04");
+        builder.stashFile(organization, repo, "Dockerfile", "FROM ubuntu:12.04", "v1");
         builder.createBranchAndRelease(organization, repo, "v1");
 
     }
@@ -79,6 +79,7 @@ public class GitHubBuilder {
             Repository repoTemplate = new Repository();
             repoTemplate.setName(repo);
             service.createRepository(organization, repoTemplate);
+            LOG.info("Repository created");
 
             // need to initialize the new repo, oddly not possible via API
             Map<String, Object> map = new HashMap<>();
@@ -90,7 +91,7 @@ public class GitHubBuilder {
             LOG.info("GIT PUT: " + uri);
             githubClient.put(uri, map, Map.class);
         } catch (RequestException e) {
-            LOG.error("Was not able to create " + organization + "/" + repo);
+            LOG.error("Was not able to create " + organization + "/" + repo + " and create readme.md. " + e.getMessage());
             // was not able to create the repo
             return false;
         } catch (IOException e) {
@@ -117,7 +118,7 @@ public class GitHubBuilder {
 
     }
 
-    public boolean stashFile(String organization, String repo, String path, String content) {
+    public boolean stashFile(String organization, String repo, String path, String content, String branch) {
         try {
             Repository repository = service.getRepository(organization, repo);
             List<RepositoryContents> contents = new ArrayList<>();
@@ -132,8 +133,11 @@ public class GitHubBuilder {
                 byte[] encode = Base64.getEncoder().encode(content.getBytes(StandardCharsets.UTF_8));
                 map.put("content", new String(encode, StandardCharsets.UTF_8));
                 map.put("message", "test");
-                LOG.info("Creating file...");
-                githubClient.put("/repos/" + organization + "/" + repo + "/contents/" + path, map, Map.class);
+                map.put("branch", branch);
+                LOG.info(branch);
+                String uri = "/repos/" + organization + "/" + repo + "/contents/" + path;
+                LOG.info("GIT PUT: " + uri);
+                githubClient.put(uri, map, Map.class);
                 return true;
             }
         } catch (IOException e) {
@@ -155,7 +159,6 @@ public class GitHubBuilder {
             String uri1 = "/repos/" + organization + "/" + repo + "/git/refs/tags/" + releaseName;
             LOG.info("GIT DELETE: " + uri1);
             githubClient.delete(uri1);
-
             LOG.info("Deleted tag");
         } catch (HttpResponseException e) {
             // ignore 404s
@@ -167,9 +170,10 @@ public class GitHubBuilder {
             throw new RuntimeException(e);
         }
         // find out the default branch and branch version from there
-        Repository repository = null;
+        Repository repository;
         try {
             repository = service.getRepository(organization, repo);
+
         } catch (IOException e) {
             LOG.info("Could not get repository.");
             throw new RuntimeException(e);
@@ -177,10 +181,11 @@ public class GitHubBuilder {
         String stringId = repository.generateId();
         String defaultBranch = repository.getDefaultBranch();
         RepositoryId fromId = RepositoryId.createFromId(stringId);
+
         // might use reference later, but cannot figure out how to "target" a reference for branching
         //Reference reference = dService.getReference(fromId, "heads/" + defaultBranch);
 
-        List<RepositoryCommit> commits = null;
+        List<RepositoryCommit> commits;
         try {
             commits = commitService.getCommits(fromId);
         } catch (IOException e) {
