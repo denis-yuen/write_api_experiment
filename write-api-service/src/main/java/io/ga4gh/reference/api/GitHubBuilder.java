@@ -120,6 +120,7 @@ public class GitHubBuilder {
 
     public boolean stashFile(String organization, String repo, String path, String content, String branch) {
         try {
+            setDefaultBranch(organization, repo, branch);
             Repository repository = service.getRepository(organization, repo);
             List<RepositoryContents> contents = new ArrayList<>();
             try {
