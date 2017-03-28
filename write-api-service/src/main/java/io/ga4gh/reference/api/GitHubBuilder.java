@@ -21,9 +21,9 @@ import com.google.gson.Gson;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.eclipse.egit.github.core.Repository;
+import org.eclipse.egit.github.core.RepositoryBranch;
 import org.eclipse.egit.github.core.RepositoryCommit;
 import org.eclipse.egit.github.core.RepositoryContents;
-import org.eclipse.egit.github.core.RepositoryId;
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.client.RequestException;
 import org.eclipse.egit.github.core.service.CommitService;
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 public class GitHubBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(GitHubBuilder.class);
-
+    private static final int FIVE = 5;
     private final GitHubClient githubClient;
     private final UserService uService;
     private final OrganizationService oService;
@@ -122,20 +122,14 @@ public class GitHubBuilder {
         try {
             Repository repository = service.getRepository(organization, repo);
             List<RepositoryContents> contents = new ArrayList<>();
-            try {
-                contents = cService.getContents(repository, path);
-            } catch (IOException e) {
-                LOG.info("File likely does not exist. IOException: " + e.getMessage());
-            }
             if (contents.isEmpty()) {
                 // no API for creating files? weird
+                String uri = "/repos/" + organization + "/" + repo + "/contents/" + path;
                 Map<String, Object> map = new HashMap<>();
                 byte[] encode = Base64.getEncoder().encode(content.getBytes(StandardCharsets.UTF_8));
                 map.put("content", new String(encode, StandardCharsets.UTF_8));
                 map.put("message", "test");
                 map.put("branch", branch);
-                LOG.info(branch);
-                String uri = "/repos/" + organization + "/" + repo + "/contents/" + path;
                 LOG.info("GIT PUT: " + uri);
                 githubClient.put(uri, map, Map.class);
                 return true;
@@ -144,6 +138,19 @@ public class GitHubBuilder {
             throw new RuntimeException(e);
         }
         return false;
+    }
+
+    private boolean setDefaultBranch(String organization, String repo, String branchName) {
+        Repository repository;
+        try {
+            repository = service.getRepository(organization, repo);
+            repository.setDefaultBranch(branchName);
+            service.editRepository(repository);
+        } catch (IOException e) {
+            LOG.info("Could not set default branch");
+            return false;
+        }
+        return true;
     }
 
     public boolean createBranchAndRelease(String organization, String repo, String releaseName) {
@@ -169,37 +176,44 @@ public class GitHubBuilder {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        // find out the default branch and branch version from there
+        // Currently there's no way to get a commit from another branch other than default
+        // Setting default branch in order to get commit
+
         Repository repository;
+
+        RepositoryCommit latestRepositoryCommit = null;
         try {
             repository = service.getRepository(organization, repo);
-
         } catch (IOException e) {
             LOG.info("Could not get repository.");
             throw new RuntimeException(e);
         }
-        String stringId = repository.generateId();
-        String defaultBranch = repository.getDefaultBranch();
-        RepositoryId fromId = RepositoryId.createFromId(stringId);
+        try {
+            List<RepositoryBranch> branches = service.getBranches(repository);
+            if (branches.stream().filter(o -> o.getName().equals(releaseName)).findFirst().isPresent()) {
+                setDefaultBranch(organization, repo, releaseName);
+            }
+        } catch (IOException e) {
+            LOG.info("Could not get branches.");
+            throw new RuntimeException(e);
+        }
+
+        try {
+            List<RepositoryCommit> commits;
+            commits = commitService.getCommits(repository);
+            latestRepositoryCommit = commits.get(0);
+        } catch (IOException e) {
+            LOG.error("Could not get commits");
+        }
 
         // might use reference later, but cannot figure out how to "target" a reference for branching
         //Reference reference = dService.getReference(fromId, "heads/" + defaultBranch);
-
-        List<RepositoryCommit> commits;
-        try {
-            commits = commitService.getCommits(fromId);
-        } catch (IOException e) {
-            LOG.info("Could not get commits");
-            throw new RuntimeException(e);
-        }
-        // found latest sha
-        RepositoryCommit repositoryCommit = commits.get(commits.size() - 1);
-
+        LOG.info("The SHA1 of the tag is: " + latestRepositoryCommit.getSha());
         try {
             // create branch if needed
             Map<String, Object> branchMap = new HashMap<>();
             branchMap.put("ref", "refs/heads/" + releaseName);
-            branchMap.put("sha", repositoryCommit.getSha());
+            branchMap.put("sha", latestRepositoryCommit.getSha());
             String uri = "/repos/" + organization + "/" + repo + "/git/refs";
             LOG.info("GIT POST: " + uri);
             Object post1 = githubClient.post(uri, branchMap, Map.class);
