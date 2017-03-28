@@ -198,6 +198,8 @@ public class GitHubBuilder {
             List<RepositoryBranch> branches = service.getBranches(repository);
             if (branches.stream().filter(o -> o.getName().equals(releaseName)).findFirst().isPresent()) {
                 setDefaultBranch(organization, repo, releaseName);
+            } else {
+                setDefaultBranch(organization, repo, "master");
             }
         } catch (IOException e) {
             LOG.info("Could not get branches.");
