@@ -189,11 +189,11 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         String repo = split[1];
 
         String url = "https://github.com/" + id + "/blob/" + versionId + "/" + body.getUrl();
-        LOG.info("The URL of the descriptor is: " + url);
+        LOG.debug("The URL of the descriptor is: " + url);
         try {
             toolDescriptorDAO.insert(url, type, body.getUrl(), id, versionId);
         } catch (UnableToExecuteStatementException e) {
-            LOG.info("Descriptor already exists in database");
+            LOG.debug("Descriptor already exists in database");
 
         }
         gitHubBuilder.stashFile(organization, repo, body.getUrl(), body.getDescriptor(), versionId);

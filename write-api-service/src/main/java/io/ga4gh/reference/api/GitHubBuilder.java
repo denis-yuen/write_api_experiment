@@ -122,22 +122,28 @@ public class GitHubBuilder {
         try {
             Repository repository = service.getRepository(organization, repo);
             List<RepositoryContents> contents = new ArrayList<>();
-            if (contents.isEmpty()) {
-                // no API for creating files? weird
-                String uri = "/repos/" + organization + "/" + repo + "/contents/" + path;
-                Map<String, Object> map = new HashMap<>();
-                byte[] encode = Base64.getEncoder().encode(content.getBytes(StandardCharsets.UTF_8));
-                map.put("content", new String(encode, StandardCharsets.UTF_8));
-                map.put("message", "test");
-                map.put("branch", branch);
-                LOG.info("GIT PUT: " + uri);
-                githubClient.put(uri, map, Map.class);
-                return true;
+            try {
+                contents = cService.getContents(repository, path);
+
+            } catch (IOException e) {
+                LOG.info("Could not get contents.");
             }
+            // no API for creating files? weird
+            Map<String, Object> map = new HashMap<>();
+            byte[] encode = Base64.getEncoder().encode(content.getBytes(StandardCharsets.UTF_8));
+            map.put("content", new String(encode, StandardCharsets.UTF_8));
+            map.put("message", "test");
+            map.put("branch", branch);
+            if (!contents.isEmpty()) {
+                map.put("sha", contents.get(0).getSha());
+            }
+            String uri = "/repos/" + organization + "/" + repo + "/contents/" + path;
+            LOG.info("GIT PUT: " + uri);
+            githubClient.put(uri, map, Map.class);
+            return true;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return false;
     }
 
     private boolean setDefaultBranch(String organization, String repo, String branchName) {
@@ -208,7 +214,7 @@ public class GitHubBuilder {
 
         // might use reference later, but cannot figure out how to "target" a reference for branching
         //Reference reference = dService.getReference(fromId, "heads/" + defaultBranch);
-        LOG.info("The SHA1 of the tag is: " + latestRepositoryCommit.getSha());
+        LOG.debug("The SHA1 of the tag is: " + latestRepositoryCommit.getSha());
         try {
             // create branch if needed
             Map<String, Object> branchMap = new HashMap<>();
@@ -222,7 +228,7 @@ public class GitHubBuilder {
             if (!e.getMessage().contains("Reference already exists")) {
                 throw new RuntimeException(e);
             } else {
-                LOG.info("Git branch already exists");
+                LOG.debug("Git branch already exists");
             }
         } catch (IOException e1) {
             LOG.info("Could not create branch");
