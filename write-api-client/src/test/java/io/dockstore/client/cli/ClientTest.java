@@ -122,8 +122,14 @@ public class ClientTest {
 
     @Test
     public void addEverything() {
-        String[] argv = { "add", "--Dockerfile", "dockerfile", "--cwl-file", "descriptor", "--cwl-secondary-file", "secondaryfile",
-                "--version", "version" };
+        File descriptor = new File("src/test/resources/Descriptor");
+        String descriptorPath = descriptor.getAbsolutePath();
+        File dockerfile = new File("src/test/resources/Dockerfile");
+        String dockerfilePath = dockerfile.getAbsolutePath();
+        File secondaryDescriptor = new File("src/test/resources/SecondaryDescriptor");
+        String secondaryDescriptorPath = secondaryDescriptor.getAbsolutePath();
+        String[] argv = { "add", "--Dockerfile", dockerfilePath, "--cwl-file", descriptorPath, "--cwl-secondary-file", secondaryDescriptorPath,
+                "--version", "3.0" };
         Client.main(argv);
         String log = systemOutRule.getLog();
         Assert.assertTrue(log.contains("Handling add"));
