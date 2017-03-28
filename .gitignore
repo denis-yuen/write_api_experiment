@@ -20,7 +20,7 @@ AndroidManifest.xml
 *.ear
 
 **/target/
-write-api-service/derbyDB
+**/derbyDB
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
