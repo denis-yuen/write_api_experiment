@@ -69,7 +69,7 @@ class Add {
         try {
             responseToolVersion = api.toolsIdVersionsPost(ORGANIZATION_NAME + "/" + REPO_NAME, toolVersion);
             assert (responseToolVersion != null);
-            LOGGER.debug("Created branch, tag, and release on git.");
+            LOGGER.info("Created branch, tag, and release on git.");
         } catch (ApiException e) {
             errorMessage("Could not create tag/release: " + e.getMessage(), CLIENT_ERROR);
         }
@@ -95,7 +95,7 @@ class Add {
             assert (responseDescriptor != null);
             LOGGER.info("Created descriptor on git.");
         } catch (ApiException e) {
-            errorMessage("Could not create descriptor file" + e.getMessage(), CLIENT_ERROR);
+            errorMessage("Could not create descriptor file. " + e.getMessage(), CLIENT_ERROR);
         }
 
         // Create secondary descriptor file
@@ -148,6 +148,7 @@ class Add {
         try {
             String content = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
             toolDockerfile.setDockerfile(content);
+            // Temporarily setting the url to the filename
             toolDockerfile.setUrl(fileName);
         } catch (IOException e) {
             errorMessage("Could not read dockerfile" + e.getMessage(), CLIENT_ERROR);
@@ -163,6 +164,7 @@ class Add {
             String content = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
             toolDescriptor.setDescriptor(content);
             toolDescriptor.setType(ToolDescriptor.TypeEnum.CWL);
+            // Temporarily setting the url to the filename, otherwise there's no way to pass it
             toolDescriptor.setUrl(fileName);
         } catch (IOException e) {
             errorMessage("Could not read descriptor file" + e.getMessage(), CLIENT_ERROR);
