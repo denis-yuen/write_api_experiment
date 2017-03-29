@@ -31,7 +31,7 @@ public interface ToolDockerfileDAO {
 
     @SqlUpdate("update dockerfile set "
             + "url = :url "
-            + "where id = :tool_id and version = :version")
+            + "where tool_id = :tool_id and version = :version")
     int update(@BindBean ToolDockerfile t, @Bind("tool_id") String toolId, @Bind("version") String version);
 
 }

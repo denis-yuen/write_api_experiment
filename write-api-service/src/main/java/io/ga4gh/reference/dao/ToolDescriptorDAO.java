@@ -23,33 +23,28 @@ public interface ToolDescriptorDAO {
             + "foreign key(tool_id, version) references toolversion(tool_id, version) " + ")")
     void createToolDescriptorTable();
 
-    @SqlUpdate("insert into descriptor (url, type, descriptor_path, tool_id, version) values (:url, :type, :descriptor_path, :tool_id, :version)")
+    @SqlUpdate("insert into descriptor (descriptor, tool_id, version, descriptor_path) values (:descriptor, :tool_id, :version, :descriptor_path)")
     int insert(
-            @Bind("url") String url,
-            @Bind("type") String type,
-            @Bind("descriptor_path") String descriptorPath,
-            @Bind("tool_id") String toolId,
-            @Bind("version") String version);
-
-    @SqlQuery("select * from descriptor where tool_id = :tool_id and version = :version and type = :type")
-    ToolDescriptor findById(
+            @Bind("descriptor") String descriptor,
             @Bind("tool_id") String toolId,
             @Bind("version") String version,
-            @Bind("type") String type);
+            @Bind("descriptor_path") String descriptorPath);
+
 
     @SqlQuery("select * from descriptor where tool_id = :tool_id and version = :version and descriptor_path = :descriptor_path")
-    ToolDescriptor findByPath(
-            @Bind("tool_id") String toolId,
-            @Bind("version") String version,
+    ToolDescriptor findByPath(@Bind("tool_id") String toolId, @Bind("version") String version,
             @Bind("descriptor_path") String descriptorPath);
 
     @SqlQuery("select * from descriptor where version = :version")
     Iterator<ToolDescriptor> listDescriptorsForTool(@Bind("version") String toolVersionId);
 
+    @SqlQuery("select * from descriptor")
+    Iterator<ToolDescriptor> listAllDescriptors();
+
     @SqlUpdate("update descriptor set "
-            + "type = :type,"
-            + "descriptor_path = :descriptor_path"
-            + " where version = :version and descriptor_path = :descriptor_path")
-    int update(@BindBean ToolDescriptor t, @Bind("version") String version, @Bind("descriptor_path") String path);
+            + "url = :url,"
+            + "type = :type"
+            + " where version = :version and tool_id = :tool_id and descriptor_path = :descriptor_path")
+    int update(@BindBean ToolDescriptor t, @Bind("tool_id") String toolId, @Bind("version") String version, @Bind("descriptor_path") String descriptorPath);
 
 }

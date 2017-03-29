@@ -120,7 +120,9 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         ToolDockerfile byId = toolDockerfileDAO.findById(id, versionId);
         return Response.ok().entity(byId).build();
     }
-
+    private String generateUrl(String toolId, String versionId, String filename){
+        return "https://raw.githubusercontent.com/" + toolId + "/" + versionId + "/" + filename;
+    }
     @Override
     public Response toolsIdVersionsVersionIdDockerfilePost(String id, String versionId, ToolDockerfile dockerfile,
             SecurityContext securityContext) throws NotFoundException {
@@ -134,12 +136,18 @@ public class ToolsApiServiceImpl extends ToolsApiService {
             LOG.info("Created quay.io repo");
         }
         quayIoBuilder.triggerBuild(organization, organization, repo, repo, versionId);
-
-        try {
-            toolDockerfileDAO.insert(id, versionId, dockerfile.getDockerfile());
-        } catch (UnableToExecuteStatementException e) {
-            LOG.info("Dockerfile already exists in database");
+        String url = generateUrl(id, versionId, dockerfile.getUrl());
+        dockerfile.setUrl(url);
+        ToolDockerfile findById = toolDockerfileDAO.findById(id, versionId);
+        if (findById == null) {
+            try {
+                toolDockerfileDAO.insert(id, versionId, dockerfile.getDockerfile());
+                toolDockerfileDAO.update(dockerfile, id, versionId);
+            } catch (UnableToExecuteStatementException e) {
+                LOG.info("Dockerfile already exists in database");
+            }
         }
+        toolDockerfileDAO.update(dockerfile, id, versionId);
         ToolDockerfile created = toolDockerfileDAO.findById(id, versionId);
 
         if (created != null) {
@@ -177,7 +185,10 @@ public class ToolsApiServiceImpl extends ToolsApiService {
     @Override
     public Response toolsIdVersionsVersionIdTypeDescriptorGet(String type, String id, String versionId, SecurityContext securityContext)
             throws NotFoundException {
-        ToolDescriptor byId = toolDescriptorDAO.findById(id, versionId, type);
+        // Removed the findById function because it could return more than one ToolDescriptor
+        // TODO: change to findByPath
+        // ToolDescriptor byId = toolDescriptorDAO.findById(id, versionId, type);
+        ToolDescriptor byId = null;
         return Response.ok().entity(byId).build();
     }
 
@@ -187,20 +198,29 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         String[] split = id.split("/");
         String organization = split[0];
         String repo = split[1];
+        String path = body.getUrl();
+        String url = generateUrl(id, versionId, body.getUrl());
+        LOG.info("The URL of the descriptor is: " + url);
+        ToolDescriptor byId = toolDescriptorDAO.findByPath(id, versionId, path);
+        if (byId == null) {
+            try {
+                toolDescriptorDAO.insert(body.getDescriptor(), id, versionId, path);
+            } catch (UnableToExecuteStatementException e) {
+                LOG.debug("Descriptor already exists in database");
 
-        String url = "https://github.com/" + id + "/blob/" + versionId + "/" + body.getUrl();
-        LOG.debug("The URL of the descriptor is: " + url);
-        try {
-            toolDescriptorDAO.insert(url, type, body.getUrl(), id, versionId);
-        } catch (UnableToExecuteStatementException e) {
-            LOG.debug("Descriptor already exists in database");
-
+            }
         }
         gitHubBuilder.stashFile(organization, repo, body.getUrl(), body.getDescriptor(), versionId);
         // TODO: improve this, this looks slow and awkward
-        ToolDescriptor byId = toolDescriptorDAO.findById(id, versionId, type);
-        toolDescriptorDAO.update(byId, versionId, byId.getUrl());
-        byId = toolDescriptorDAO.findById(id, versionId, type);
+        body.setUrl(url);
+        toolDescriptorDAO.update(body, id, versionId, path);
+        LOG.info("Some info: " + id + " " + versionId + " " + path);
+        byId = toolDescriptorDAO.findByPath(id, versionId, path);
+        if (byId != null) {
+            LOG.info("Could something at least");
+        } else {
+            LOG.info("Got nothing");
+        }
         return Response.ok().entity(byId).build();
     }
 
