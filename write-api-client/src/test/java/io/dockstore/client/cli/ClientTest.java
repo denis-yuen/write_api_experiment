@@ -74,7 +74,7 @@ public class ClientTest {
 
     @Test
     public void addDockerfileWithDockerfileAndDescriptorWithDescriptor() {
-        File descriptor = new File("src/test/resources/Descriptor");
+        File descriptor = new File("src/test/resources/Dockstore.cwl");
         String descriptorPath = descriptor.getAbsolutePath();
         File dockerfile = new File("src/test/resources/Dockerfile");
         String dockerfilePath = dockerfile.getAbsolutePath();
@@ -99,11 +99,11 @@ public class ClientTest {
 
     @Test
     public void addDockerfileWithDockerfileAndDescriptorWithDescriptorAndSecondaryDescriptorWithSecondaryDescriptor() {
-        File descriptor = new File("src/test/resources/Descriptor");
+        File descriptor = new File("src/test/resources/Dockstore.cwl");
         String descriptorPath = descriptor.getAbsolutePath();
         File dockerfile = new File("src/test/resources/Dockerfile");
         String dockerfilePath = dockerfile.getAbsolutePath();
-        File secondaryDescriptor = new File("src/test/resources/SecondaryDescriptor");
+        File secondaryDescriptor = new File("src/test/resources/Dockstore.wdl");
         String secondaryDescriptorPath = secondaryDescriptor.getAbsolutePath();
         String[] argv = { "add", "--Dockerfile", dockerfilePath, "--cwl-file", descriptorPath, "--cwl-secondary-file", secondaryDescriptorPath};
         Client.main(argv);
@@ -122,11 +122,11 @@ public class ClientTest {
 
     @Test
     public void addEverything() {
-        File descriptor = new File("src/test/resources/Descriptor");
+        File descriptor = new File("src/test/resources/Dockstore.cwl");
         String descriptorPath = descriptor.getAbsolutePath();
         File dockerfile = new File("src/test/resources/Dockerfile");
         String dockerfilePath = dockerfile.getAbsolutePath();
-        File secondaryDescriptor = new File("src/test/resources/SecondaryDescriptor");
+        File secondaryDescriptor = new File("src/test/resources/Dockstore.wdl");
         String secondaryDescriptorPath = secondaryDescriptor.getAbsolutePath();
         String[] argv = { "add", "--Dockerfile", dockerfilePath, "--cwl-file", descriptorPath, "--cwl-secondary-file", secondaryDescriptorPath,
                 "--version", "3.0" };
