@@ -93,7 +93,8 @@ public final class Client {
                 if (commandPublish.help) {
                     jc.usage("publish");
                 } else {
-                    Publish.handlePublish(commandPublish.tool);
+                    Publish publish = new Publish();
+                    publish.handlePublish(commandPublish.tool);
                 }
                 break;
             default:

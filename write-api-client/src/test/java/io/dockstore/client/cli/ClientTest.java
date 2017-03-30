@@ -165,7 +165,9 @@ public class ClientTest {
 
     @Test
     public void publishToolWithTool() {
-        String[] argv = { "publish", "--tool", "someTool" };
+        File testJson = new File("src/test/resources/Test.json");
+        String testJsonPath = testJson.getAbsolutePath();
+        String[] argv = { "publish", "--tool", testJsonPath };
         Client.main(argv);
         String log = systemOutRule.getLog();
         Assert.assertTrue(log.contains("Handling publish"));
