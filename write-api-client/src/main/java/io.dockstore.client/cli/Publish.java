@@ -17,7 +17,6 @@ import io.swagger.client.model.DockstoreTool;
 import io.swagger.client.model.PublishRequest;
 import io.swagger.client.model.User;
 import json.Output;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

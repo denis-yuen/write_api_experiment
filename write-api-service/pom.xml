@@ -845,8 +845,8 @@
                                 https://raw.githubusercontent.com/ga4gh/tool-registry-schemas/feature/write_api_presentation/src/main/resources/swagger/ga4gh-tool-discovery.yaml
                             </inputSpec>
                             <language>java</language>
-                            <apiPackage>io.swagger.client.api</apiPackage>
-                            <modelPackage>io.swagger.client.model</modelPackage>
+                            <apiPackage>io.swagger.client.write.api</apiPackage>
+                            <modelPackage>io.swagger.client.write.model</modelPackage>
                             <configOptions>
                                 <sourceFolder>src/gen/java/main</sourceFolder>
                                 <library>jersey2</library>

@@ -1,1 +1,2 @@
-FROM ubuntu:12.04
+# Set the base image to Ubuntu
+FROM ubuntu:16.04

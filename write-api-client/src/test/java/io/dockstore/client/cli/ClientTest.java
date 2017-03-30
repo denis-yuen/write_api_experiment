@@ -105,7 +105,8 @@ public class ClientTest {
         String dockerfilePath = dockerfile.getAbsolutePath();
         File secondaryDescriptor = new File("src/test/resources/Dockstore.wdl");
         String secondaryDescriptorPath = secondaryDescriptor.getAbsolutePath();
-        String[] argv = { "add", "--Dockerfile", dockerfilePath, "--cwl-file", descriptorPath, "--cwl-secondary-file", secondaryDescriptorPath};
+        String[] argv = { "add", "--Dockerfile", dockerfilePath, "--cwl-file", descriptorPath, "--cwl-secondary-file",
+                secondaryDescriptorPath };
         Client.main(argv);
         String log = systemOutRule.getLog();
         Assert.assertTrue(log.contains("Handling add"));
@@ -128,8 +129,8 @@ public class ClientTest {
         String dockerfilePath = dockerfile.getAbsolutePath();
         File secondaryDescriptor = new File("src/test/resources/Dockstore.wdl");
         String secondaryDescriptorPath = secondaryDescriptor.getAbsolutePath();
-        String[] argv = { "add", "--Dockerfile", dockerfilePath, "--cwl-file", descriptorPath, "--cwl-secondary-file", secondaryDescriptorPath,
-                "--version", "3.0" };
+        String[] argv = { "add", "--Dockerfile", dockerfilePath, "--cwl-file", descriptorPath, "--cwl-secondary-file",
+                secondaryDescriptorPath, "--version", "3.0" };
         Client.main(argv);
         String log = systemOutRule.getLog();
         Assert.assertTrue(log.contains("Handling add"));

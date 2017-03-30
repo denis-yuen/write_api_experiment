@@ -1,7 +1,7 @@
 package io.dockstore.client.cli;
 
-import io.swagger.client.ApiClient;
-import io.swagger.client.api.GAGHoptionalwriteApi;
+import io.swagger.client.write.ApiClient;
+import io.swagger.client.write.api.GAGHoptionalwriteApi;
 
 /**
  * @author gluu

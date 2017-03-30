@@ -25,7 +25,7 @@
     </Match>
     <!-- try to exclude generated classes -->
     <Match>
-        <Package name="io.swagger.client"/>
+        <Package name="io.swagger.client.write"/>
     </Match>
     <Match>
         <Package name="io.swagger.server"/>
