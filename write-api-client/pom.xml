@@ -134,16 +134,15 @@
             <version>1.16.0</version>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>io.dockstore</groupId>
-            <artifactId>dockstore-client</artifactId>
-            <version>1.2.0-alpha.6-SNAPSHOT</version>
-        </dependency>
         <dependency>
         <groupId>io.dockstore</groupId>
         <artifactId>write-api-service</artifactId>
         <version>0.1-alpha.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dockstore</groupId>
+            <artifactId>swagger-java-client</artifactId>
+            <version>1.2.0-alpha.6-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

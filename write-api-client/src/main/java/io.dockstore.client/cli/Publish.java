@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Properties;
 
 import com.google.gson.Gson;
 import io.swagger.client.ApiClient;
@@ -16,7 +17,7 @@ import io.swagger.client.model.DockstoreTool;
 import io.swagger.client.model.PublishRequest;
 import io.swagger.client.model.User;
 import json.Output;
-import org.apache.commons.configuration2.INIConfiguration;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,9 +50,9 @@ class Publish {
 
     void handlePublish(String tool) {
         LOGGER.info("Handling publish");
-        INIConfiguration iniConfiguration = getIniConfiguration();
-        String token = iniConfiguration.getString("token", "");
-        String serverUrl = iniConfiguration.getString("server-url", "https://www.dockstore.org:8443");
+        Properties prop = getIniConfiguration();
+        String token = prop.getProperty("token", "");
+        String serverUrl = prop.getProperty("server-url", "https://www.dockstore.org:8443");
         ApiClient defaultApiClient;
         defaultApiClient = Configuration.getDefaultApiClient();
         defaultApiClient.addDefaultHeader("Authorization", "Bearer " + token);
