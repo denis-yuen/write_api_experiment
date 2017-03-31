@@ -123,7 +123,7 @@ class Add {
         output.setVersion(version);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String json = gson.toJson(output);
-        LOGGER.info("Successfully added.");
+        LOGGER.info("Successfully added tool.");
         System.out.println(json);
     }
 

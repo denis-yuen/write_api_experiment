@@ -97,6 +97,6 @@ class Publish {
             LOGGER.info(e.getMessage());
             return;
         }
-        LOGGER.info("Successfully published tool");
+        LOGGER.info("Successfully published tool.");
     }
 }

@@ -51,7 +51,6 @@ public class ToolsApiServiceImpl extends ToolsApiService {
     @Override
     public Response toolsGet(String id, String registry, String organization, String name, String toolname, String description,
             String author, String offset, Integer limit, SecurityContext securityContext) throws NotFoundException {
-        LOG.info("Trying");
         Iterator<Tool> toolIterator = toolDAO.listAllTools();
         return Response.ok().entity(Lists.newArrayList(toolIterator)).build();
     }
@@ -93,12 +92,12 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         //gitHubBuilder.createBranchAndRelease(, , body.getName());
         String[] split = id.split("/");
         LOG.info("Creating branch...");
-        LOG.info(split[0]);
-        LOG.info(split[1]);
-        LOG.info(body.getName());
-        gitHubBuilder.createBranchAndRelease(split[0], split[1], body.getName());
+        String organization = split[0];
+        String repo = split[1];
+        String version = body.getName();
+        gitHubBuilder.createBranchAndRelease(organization, repo, version);
         try {
-            int insert = toolVersionDAO.insert(id, body.getName());
+            int insert = toolVersionDAO.insert(id, version);
             if (insert != 1) {
                 LOG.info("Tool version already exists in database");
                 return Response.notModified().build();
@@ -106,7 +105,7 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         } catch (UnableToExecuteStatementException e) {
             LOG.info("Tool version already exists in database");
         }
-        ToolVersion byId = toolVersionDAO.findByToolVersion(id, body.getName());
+        ToolVersion byId = toolVersionDAO.findByToolVersion(id, version);
         if (byId == null) {
             return Response.notModified().build();
         }
@@ -116,7 +115,6 @@ public class ToolsApiServiceImpl extends ToolsApiService {
     @Override
     public Response toolsIdVersionsVersionIdDockerfileGet(String id, String versionId, SecurityContext securityContext)
             throws NotFoundException {
-        LOG.info("toolsIdVersionsVersionIdDockerfileGet");
         ToolDockerfile byId = toolDockerfileDAO.findById(id, versionId);
         return Response.ok().entity(byId).build();
     }
@@ -133,7 +131,7 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         gitHubBuilder.createBranchAndRelease(organization, repo, versionId);
         if (!quayIoBuilder.repoExists(organization, repo)) {
             quayIoBuilder.createRepo(organization, repo, repo);
-            LOG.info("Created quay.io repo");
+            LOG.info("Created quay.io repository.");
         }
         quayIoBuilder.triggerBuild(organization, organization, repo, repo, versionId);
         String url = generateUrl(id, versionId, dockerfile.getUrl());
@@ -152,10 +150,8 @@ public class ToolsApiServiceImpl extends ToolsApiService {
 
         if (created != null) {
             created.setUrl(quayIoBuilder.getQuayUrl(organization, repo));
-            LOG.info(created.getUrl());
             return Response.ok().entity(created).build();
         }
-
         return Response.serverError().build();
     }
 
@@ -214,13 +210,7 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         // TODO: improve this, this looks slow and awkward
         body.setUrl(url);
         toolDescriptorDAO.update(body, id, versionId, path);
-        LOG.info("Some info: " + id + " " + versionId + " " + path);
         byId = toolDescriptorDAO.findByPath(id, versionId, path);
-        if (byId != null) {
-            LOG.info("Could something at least");
-        } else {
-            LOG.info("Got nothing");
-        }
         return Response.ok().entity(byId).build();
     }
 

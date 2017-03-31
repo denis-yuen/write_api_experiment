@@ -173,7 +173,6 @@ public class GitHubBuilder {
             String uri1 = "/repos/" + organization + "/" + repo + "/git/refs/tags/" + releaseName;
             LOG.info("GIT DELETE: " + uri1);
             githubClient.delete(uri1);
-            LOG.info("Deleted tag");
         } catch (HttpResponseException e) {
             // ignore 404s
             if (e.getStatusCode() != HttpStatus.SC_NOT_FOUND) {
