@@ -58,7 +58,7 @@ public class QuayIoBuilder {
             request.setArchiveUrl("https://github.com/" + githubOrg + "/" + gitRepo + "/archive/" + release + ".tar.gz");
             request.setSubdirectory(quayRepo + "-" + release + "/" + "Dockerfile");
             List<String> tags = new ArrayList<>();
-            tags.add("latest");
+            tags.add(release);
             request.setDockerTags(tags);
             buildApi.requestRepoBuild(repo, request);
             return true;
