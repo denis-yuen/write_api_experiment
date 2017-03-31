@@ -45,18 +45,24 @@ public class QuayIoBuilder {
         if (!builder.repoExists("denis_yuen", "test")) {
             builder.createRepo("denis_yuen", "test", "test_repo");
         }
-        if (!builder.triggerBuild("denis-yuen", "denis_yuen", "test_repo", "test", "2017.03.08")) {
+        if (!builder.triggerBuild("denis-yuen", "denis_yuen", "test_repo", "test", "2017.03.08", true)) {
             throw new RuntimeException("Could not trigger build, please check your credentials");
         }
     }
 
-    public boolean triggerBuild(String githubOrg, String quayOrg, String gitRepo, String quayRepo, String release) {
+    public boolean triggerBuild(String githubOrg, String quayOrg, String gitRepo, String quayRepo, String release, boolean choice) {
         try {
             BuildApi buildApi = new BuildApi(apiClient);
             final String repo = quayOrg + '/' + quayRepo;
             RepositoryBuildRequest request = new RepositoryBuildRequest();
             request.setArchiveUrl("https://github.com/" + githubOrg + "/" + gitRepo + "/archive/" + release + ".tar.gz");
-            request.setSubdirectory(quayRepo + "-" + release + "/");
+            String subDirectory;
+            if (choice) {
+                subDirectory = getSubdirectory1(quayRepo, release);
+            } else {
+                subDirectory = getSubdirectory2(quayRepo, release);
+            }
+            request.setSubdirectory(subDirectory);
             List<String> tags = new ArrayList<>();
             tags.add(release);
             request.setDockerTags(tags);
@@ -65,6 +71,15 @@ public class QuayIoBuilder {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public String getSubdirectory2(String name, String tag) {
+        return name + "-" + tag + "/" + "Dockerfile";
+    }
+
+
+    public String getSubdirectory1(String name, String tag) {
+        return name + "-" + tag + "/";
     }
 
     public boolean createRepo(String namespace, String quayRepo, String gitRepo) {
@@ -97,5 +112,11 @@ public class QuayIoBuilder {
     public String getQuayUrl(String namespace, String repo) {
         final String repoUrl = QUAY_DOMAIN + "repository/" + namespace + "/" + repo;
         return repoUrl;
+    }
+
+    public Optional<String> buildResults(String namespace, String name) {
+        final String repoUrl = QUAY_URL + "repository/" + namespace + "/" + name + "/build?limit=1";
+        Optional<String> responseAsString = ResourceUtilities.asString(repoUrl, token, httpClient);
+        return responseAsString;
     }
 }

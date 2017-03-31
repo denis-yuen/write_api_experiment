@@ -133,7 +133,7 @@ public class ToolsApiServiceImpl extends ToolsApiService {
             quayIoBuilder.createRepo(organization, repo, repo);
             LOG.info("Created quay.io repository.");
         }
-        quayIoBuilder.triggerBuild(organization, organization, repo, repo, versionId);
+        quayIoBuilder.triggerBuild(organization, organization, repo, repo, versionId, true);
         String url = generateUrl(id, versionId, dockerfile.getUrl());
         dockerfile.setUrl(url);
         ToolDockerfile findById = toolDockerfileDAO.findById(id, versionId);
