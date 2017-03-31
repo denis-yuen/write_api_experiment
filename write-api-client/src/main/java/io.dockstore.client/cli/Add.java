@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Properties;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
@@ -19,6 +20,7 @@ import json.Output;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static io.dockstore.client.cli.ConfigFileHelper.getIniConfiguration;
 import static io.dockstore.client.cli.ExceptionHelper.CLIENT_ERROR;
 import static io.dockstore.client.cli.ExceptionHelper.errorMessage;
 
@@ -28,9 +30,10 @@ import static io.dockstore.client.cli.ExceptionHelper.errorMessage;
  */
 class Add {
     // an organization for both GitHub and Quay.io where repos will be created (and deleted)
-    private static final String ORGANIZATION_NAME = "dockstore-testing";
+    private static final Properties PROPERTIES = getIniConfiguration();
+    private static final String ORGANIZATION_NAME = PROPERTIES.getProperty("organization", "dockstore-testing");
     // repo name for GitHub and Quay.io, this repo will be created and deleted
-    private static final String REPO_NAME = "test_repo3";
+    private static final String REPO_NAME = PROPERTIES.getProperty("repo", "test_repo3");
     private static final Logger LOGGER = LoggerFactory.getLogger(Add.class);
 
     Add() {
@@ -38,7 +41,6 @@ class Add {
 
     void handleAdd(String dockerfile, String descriptor, String secondaryDescriptor, String version) {
         // watch out, versions can't start with a "v"
-
         if (version == null) {
             version = "1.0";
         }
