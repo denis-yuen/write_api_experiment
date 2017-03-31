@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Properties;
 
 import com.google.gson.Gson;
@@ -12,9 +13,11 @@ import io.swagger.client.ApiClient;
 import io.swagger.client.ApiException;
 import io.swagger.client.Configuration;
 import io.swagger.client.api.ContainersApi;
+import io.swagger.client.api.ContainertagsApi;
 import io.swagger.client.api.UsersApi;
 import io.swagger.client.model.DockstoreTool;
 import io.swagger.client.model.PublishRequest;
+import io.swagger.client.model.Tag;
 import io.swagger.client.model.User;
 import json.Output;
 import org.slf4j.Logger;
@@ -76,6 +79,12 @@ class Publish {
         DockstoreTool dockstoreTool;
         try {
             dockstoreTool = containersApi.getContainerByToolPath("quay.io" + "/" + namespace + "/" + name);
+            ContainertagsApi containertagsApi = new ContainertagsApi(defaultApiClient);
+            List<Tag> tagsByPath = containertagsApi.getTagsByPath(dockstoreTool.getId());
+            Tag first = tagsByPath.parallelStream().filter(tag -> tag.getName().equals(output.getVersion())).findFirst().get();
+            first.setReference(output.getVersion());
+            containertagsApi.updateTags(dockstoreTool.getId(), tagsByPath);
+            containersApi.refresh(dockstoreTool.getId());
         } catch (ApiException e) {
             LOGGER.info(e.getMessage());
             return;
