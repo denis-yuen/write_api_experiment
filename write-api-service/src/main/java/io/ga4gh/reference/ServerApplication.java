@@ -6,9 +6,11 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import io.dropwizard.Application;
+import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.jdbi.DBIFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.dropwizard.views.ViewBundle;
 import io.ga4gh.reference.api.GitHubBuilder;
 import io.ga4gh.reference.api.QuayIoBuilder;
 import io.ga4gh.reference.dao.ToolDAO;
@@ -49,6 +51,8 @@ public class ServerApplication extends Application<ServerConfiguration> {
 
     @Override
     public void initialize(Bootstrap<ServerConfiguration> bootstrap) {
+        bootstrap.addBundle(new AssetsBundle("/assets/", "/static/"));
+        bootstrap.addBundle(new ViewBundle<>());
     }
 
     @Override
