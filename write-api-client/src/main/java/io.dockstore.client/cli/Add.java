@@ -158,7 +158,7 @@ class Add {
         return toolDockerfile;
     }
 
-    ToolDescriptor createDescriptor(String stringPath) {
+    private ToolDescriptor createDescriptor(String stringPath) {
         ToolDescriptor toolDescriptor = new ToolDescriptor();
         try {
             Path path = Paths.get(stringPath);

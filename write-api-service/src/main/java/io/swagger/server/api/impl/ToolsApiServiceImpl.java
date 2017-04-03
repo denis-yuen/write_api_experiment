@@ -24,6 +24,7 @@ import io.swagger.server.model.ToolTests;
 import io.swagger.server.model.ToolVersion;
 import org.eclipse.jetty.http.HttpStatus;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
+import org.skife.jdbi.v2.sqlobject.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,6 +65,7 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         return Response.status(HttpStatus.NOT_FOUND_404).build();
     }
 
+    @Transaction
     @Override
     public Response toolsIdPut(String id, Tool body, SecurityContext securityContext) throws NotFoundException {
         // ensure that id matches
@@ -86,6 +88,7 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         return Response.ok().entity(Lists.newArrayList(toolVersionIterator)).build();
     }
 
+    @Transaction
     @Override
     public Response toolsIdVersionsPost(String id, ToolVersion body, SecurityContext securityContext) throws NotFoundException {
         // refresh the release on github
@@ -112,6 +115,7 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         return Response.ok().entity(byId).build();
     }
 
+    @Transaction
     @Override
     public Response toolsIdVersionsVersionIdDockerfileGet(String id, String versionId, SecurityContext securityContext)
             throws NotFoundException {
@@ -121,6 +125,8 @@ public class ToolsApiServiceImpl extends ToolsApiService {
     private String generateUrl(String toolId, String versionId, String filename){
         return "https://raw.githubusercontent.com/" + toolId + "/" + versionId + "/" + filename;
     }
+
+    @Transaction
     @Override
     public Response toolsIdVersionsVersionIdDockerfilePost(String id, String versionId, ToolDockerfile dockerfile,
             SecurityContext securityContext) throws NotFoundException {
@@ -164,6 +170,7 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         return Response.ok().entity(byId).build();
     }
 
+    @Transaction
     @Override
     public Response toolsIdVersionsVersionIdPut(String id, String versionId, ToolVersion body, SecurityContext securityContext)
             throws NotFoundException {
@@ -188,6 +195,7 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         return Response.ok().entity(byId).build();
     }
 
+    @Transaction
     @Override
     public Response toolsIdVersionsVersionIdTypeDescriptorPost(String type, String id, String versionId, ToolDescriptor body,
             SecurityContext securityContext) throws NotFoundException {
@@ -221,6 +229,7 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         return Response.ok().entity(byPath).build();
     }
 
+    @Transaction
     @Override
     public Response toolsIdVersionsVersionIdTypeDescriptorRelativePathPost(String type, String id, String versionId, String relativePath,
             ToolDescriptor body, SecurityContext securityContext) throws NotFoundException {
@@ -236,6 +245,7 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "magic!")).build();
     }
 
+    @Transaction
     @Override
     public Response toolsIdVersionsVersionIdTypeTestsPut(String type, String id, String versionId, List<ToolTests> body,
             SecurityContext securityContext) throws NotFoundException {
@@ -243,6 +253,7 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "magic!")).build();
     }
 
+    @Transaction
     @Override
     public Response toolsPost(Tool body, SecurityContext securityContext) throws NotFoundException {
         // try creating a repo on github for this, this should probably be made into a transaction
