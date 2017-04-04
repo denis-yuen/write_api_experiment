@@ -4,6 +4,7 @@ import java.io.File;
 
 import com.beust.jcommander.ParameterException;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.SystemOutRule;
@@ -72,6 +73,7 @@ public class ClientTest {
         Client.main(argv);
     }
 
+    @Ignore("Test is ignored until there is are valid or mocked github and quay.io tokens")
     @Test
     public void addDockerfileWithDockerfileAndDescriptorWithDescriptor() {
         File descriptor = new File("src/test/resources/Dockstore.cwl");
@@ -97,6 +99,7 @@ public class ClientTest {
         Client.main(argv);
     }
 
+    @Ignore("Test is ignored until there is are valid or mocked github and quay.io tokens")
     @Test
     public void addDockerfileWithDockerfileAndDescriptorWithDescriptorAndSecondaryDescriptorWithSecondaryDescriptor() {
         File descriptor = new File("src/test/resources/Dockstore.cwl");
@@ -113,6 +116,7 @@ public class ClientTest {
         Assert.assertTrue(log.contains("Successfully added."));
     }
 
+    @Ignore("Test is ignored until there is are valid or mocked github and quay.io tokens")
     @Test
     public void addDockerfileWithDockerfileAndDescriptorWithDescriptorAndVersionWithVersion() {
         String[] argv = { "add", "--Dockerfile", "dockerfile", "--cwl-file", "descriptor", "--version", "version" };
@@ -121,6 +125,7 @@ public class ClientTest {
         Assert.assertTrue(log.contains("Handling add"));
     }
 
+    @Ignore("Test is ignored until there is are valid or mocked github and quay.io tokens")
     @Test
     public void addEverything() {
         File descriptor = new File("src/test/resources/Dockstore.cwl");
@@ -164,6 +169,7 @@ public class ClientTest {
         Client.main(argv);
     }
 
+    @Ignore("Test is ignored until there is a valid or mocked dockstore token")
     @Test
     public void publishToolWithTool() {
         File testJson = new File("src/test/resources/Test.json");

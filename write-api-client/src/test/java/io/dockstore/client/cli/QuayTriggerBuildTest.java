@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.google.gson.Gson;
 import io.ga4gh.reference.api.QuayIoBuilder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,7 @@ public class QuayTriggerBuildTest {
     static String quayToken = System.getProperty("quayToken");
     static QuayIoBuilder quayIoBuilder = new QuayIoBuilder(quayToken);
 
+    @Ignore("Test is ignored until there is a valid or mocked quay.io token")
     @Test
     public void withFilename() {
         quayIoBuilder.triggerBuild(NAMESPACE, NAMESPACE, NAME, NAME, RELEASE, true);
@@ -54,6 +56,7 @@ public class QuayTriggerBuildTest {
         assertTrue(phase.equals("complete"));
     }
 
+    @Ignore("Test is ignored until there is a valid or mocked quay.io token")
     @Test
     public void withoutFilename() {
         quayIoBuilder.triggerBuild(NAMESPACE, NAMESPACE, NAME, NAME, RELEASE, false);

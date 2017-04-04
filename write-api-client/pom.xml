@@ -142,7 +142,7 @@
         <dependency>
             <groupId>io.dockstore</groupId>
             <artifactId>swagger-java-client</artifactId>
-            <version>1.2.0-alpha.6-SNAPSHOT</version>
+            <version>1.2-alpha.2</version>
         </dependency>
     </dependencies>
 

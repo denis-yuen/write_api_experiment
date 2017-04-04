@@ -17,6 +17,7 @@ import io.swagger.client.write.model.ToolDockerfile;
 import io.swagger.client.write.model.ToolVersion;
 import org.junit.Assert;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class ClientTest {
@@ -41,6 +42,7 @@ public class ClientTest {
         Assert.assertTrue(!metadata.getCountry().isEmpty());
     }
 
+    @Ignore("Test is ignored until there are valid or mocked quay.io and github tokens")
     @Test
     public void postDescriptorAndCreateRepo() throws IOException, ApiException {
         // watch out, versions can't start with a "v"
