@@ -28,20 +28,20 @@ public class Output {
         return githubURL;
     }
 
-    public String getQuayioURL() {
-        return quayioURL;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
     public void setGithubURL(String githubURL) {
         this.githubURL = githubURL;
     }
 
+    public String getQuayioURL() {
+        return quayioURL;
+    }
+
     public void setQuayioURL(String quayioURL) {
         this.quayioURL = quayioURL;
+    }
+
+    public String getVersion() {
+        return version;
     }
 
     public void setVersion(String version) {

@@ -17,6 +17,7 @@ import io.swagger.client.write.model.ToolDescriptor;
 import io.swagger.client.write.model.ToolDockerfile;
 import io.swagger.client.write.model.ToolVersion;
 import json.Output;
+import org.skife.jdbi.v2.sqlobject.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,12 +38,14 @@ class Add {
     Add() {
     }
 
+    @Transaction
     /**
      * Handles the add command
-     * @param dockerfile            The dockerfile path
-     * @param descriptor            The descriptor path
-     * @param secondaryDescriptor   The secondary descriptor path
-     * @param version               The version of the tool
+     *
+     * @param dockerfile          The dockerfile path
+     * @param descriptor          The descriptor path
+     * @param secondaryDescriptor The secondary descriptor path
+     * @param version             The version of the tool
      */
     void handleAdd(String dockerfile, String descriptor, String secondaryDescriptor, String version) {
         // watch out, versions can't start with a "v"
@@ -115,7 +118,8 @@ class Add {
                 assert (responseSecondaryDescriptor != null);
                 LOGGER.info("Created secondary descriptor on git.");
             } catch (ApiException e) {
-                ExceptionHelper.errorMessage(LOGGER, "Could not create secondary descriptor file" + e.getMessage(), ExceptionHelper.API_ERROR);
+                ExceptionHelper
+                        .errorMessage(LOGGER, "Could not create secondary descriptor file" + e.getMessage(), ExceptionHelper.API_ERROR);
             }
         }
 

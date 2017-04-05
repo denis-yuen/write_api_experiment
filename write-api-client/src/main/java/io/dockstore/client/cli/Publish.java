@@ -20,6 +20,7 @@ import io.swagger.client.model.PublishRequest;
 import io.swagger.client.model.Tag;
 import io.swagger.client.model.User;
 import json.Output;
+import org.skife.jdbi.v2.sqlobject.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,8 +38,9 @@ class Publish {
 
     /**
      * Gets the Output object from the filepath
-     * @param filePath  The path to the file containing json output from the add command
-     * @return          The output object
+     *
+     * @param filePath The path to the file containing json output from the add command
+     * @return The output object
      */
     private static Output getJson(String filePath) {
         Output output = null;
@@ -55,8 +57,10 @@ class Publish {
 
     /**
      * Handles the publish command
-     * @param tool  The path of the file containing the json outputted by the add command
+     *
+     * @param tool The path of the file containing the json outputted by the add command
      */
+    @Transaction
     void handlePublish(String tool) {
         LOGGER.info("Handling publish");
         Properties prop = getIniConfiguration();

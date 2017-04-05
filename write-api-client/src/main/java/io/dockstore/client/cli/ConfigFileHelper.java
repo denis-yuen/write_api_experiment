@@ -24,7 +24,8 @@ final class ConfigFileHelper {
 
     /**
      * Gets the properties from the default location
-     * @return  The configuration properties
+     *
+     * @return The configuration properties
      */
     static Properties getIniConfiguration() {
         Properties prop = new Properties();

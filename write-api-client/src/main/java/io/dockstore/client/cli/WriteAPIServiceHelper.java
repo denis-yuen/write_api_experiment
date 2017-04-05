@@ -20,7 +20,8 @@ final class WriteAPIServiceHelper {
 
     /**
      * Gets the write-api-service
-     * @return  The write-api-service
+     *
+     * @return The write-api-service
      */
     static GAGHoptionalwriteApi getGaghOptionalApi() {
         ApiClient client = new ApiClient();
