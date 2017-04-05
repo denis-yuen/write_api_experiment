@@ -37,6 +37,13 @@ class Add {
     Add() {
     }
 
+    /**
+     * Handles the add command
+     * @param dockerfile            The dockerfile path
+     * @param descriptor            The descriptor path
+     * @param secondaryDescriptor   The secondary descriptor path
+     * @param version               The version of the tool
+     */
     void handleAdd(String dockerfile, String descriptor, String secondaryDescriptor, String version) {
         // watch out, versions can't start with a "v"
         if (version == null) {

@@ -35,6 +35,11 @@ class Publish {
     Publish() {
     }
 
+    /**
+     * Gets the Output object from the filepath
+     * @param filePath  The path to the file containing json output from the add command
+     * @return          The output object
+     */
     private static Output getJson(String filePath) {
         Output output = null;
         try {
@@ -48,6 +53,10 @@ class Publish {
         return output;
     }
 
+    /**
+     * Handles the publish command
+     * @param tool  The path of the file containing the json outputted by the add command
+     */
     void handlePublish(String tool) {
         LOGGER.info("Handling publish");
         Properties prop = getIniConfiguration();
@@ -79,7 +88,7 @@ class Publish {
             dockstoreTool = containersApi.getContainerByToolPath("quay.io" + "/" + namespace + "/" + name);
             ContainertagsApi containertagsApi = new ContainertagsApi(defaultApiClient);
             List<Tag> tagsByPath = containertagsApi.getTagsByPath(dockstoreTool.getId());
-            Tag first = tagsByPath.parallelStream().filter(tag -> tag.getName().equals(output.getVersion())).findFirst().get();
+            Tag first = tagsByPath.parallelStream().filter(tag -> tag.getName().equals(output.getVersion())).findFirst().orElse(null);
             first.setReference(output.getVersion());
             containertagsApi.updateTags(dockstoreTool.getId(), tagsByPath);
             containersApi.refresh(dockstoreTool.getId());

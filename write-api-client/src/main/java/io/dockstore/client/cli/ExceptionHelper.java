@@ -22,6 +22,11 @@ public final class ExceptionHelper {
     private ExceptionHelper() {
     }
 
+    /**
+     * Logs the error message and then exits
+     * @param message   The error message
+     * @param exitCode  The code to exit with
+     */
     public static void errorMessage(String message, int exitCode) {
         err(message);
         System.exit(exitCode);

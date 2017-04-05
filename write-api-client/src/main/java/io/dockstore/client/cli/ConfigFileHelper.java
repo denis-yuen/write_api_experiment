@@ -16,12 +16,16 @@ import static io.dockstore.client.cli.ExceptionHelper.errorMessage;
  * @author gluu
  * @since 30/03/17
  */
-public final class ConfigFileHelper {
+final class ConfigFileHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(Client.class);
 
     private ConfigFileHelper() {
     }
 
+    /**
+     * Gets the properties from the default location
+     * @return  The configuration properties
+     */
     static Properties getIniConfiguration() {
         Properties prop = new Properties();
         String userHome = System.getProperty("user.home");

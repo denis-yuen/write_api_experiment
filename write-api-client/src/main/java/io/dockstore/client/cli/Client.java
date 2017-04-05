@@ -29,14 +29,6 @@ import org.slf4j.LoggerFactory;
  */
 
 public final class Client {
-    public static final int PADDING = 3;
-    public static final int GENERIC_ERROR = 1; // General error, not yet described by an error type
-    public static final int CONNECTION_ERROR = 150; // Connection exception
-    public static final int IO_ERROR = 3; // IO throws an exception
-    public static final int API_ERROR = 6; // API throws an exception
-    public static final int CLIENT_ERROR = 4; // Client does something wrong (ex. input validation)
-    public static final int COMMAND_ERROR = 10; // Command is not successful, but not due to errors
-    public static final int ENTRY_NOT_FOUND = 12; // Entry could not be found locally or remotely
     private static final Logger LOGGER = LoggerFactory.getLogger(Client.class);
 
     private Client() {
@@ -105,6 +97,9 @@ public final class Client {
         }
     }
 
+    /**
+     * The add command
+     */
     @Parameters(separators = "=", commandDescription = "Add the Dockerfile and CWL file(s) using the write API.")
     private static class CommandAdd {
         @Parameter(names = "--Dockerfile", description = "The Dockerfile to upload", required = true)
@@ -119,6 +114,9 @@ public final class Client {
         private boolean help = false;
     }
 
+    /**
+     * The publish command
+     */
     @Parameters(separators = "=", commandDescription = "Publish tool to dockstore using the output of the 'add' command.")
     private static class CommandPublish {
         @Parameter(names = "--tool", description = "The json output from the 'add' command.", required = true)
@@ -127,6 +125,9 @@ public final class Client {
         private boolean help = false;
     }
 
+    /**
+     * The options before other commands
+     */
     @Parameters(separators = "=", commandDescription = "Publish or add tools")
     private static class CommandMain {
         @Parameter(names = "--help", description = "Prints help for the client.", help = true)
