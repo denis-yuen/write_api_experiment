@@ -35,7 +35,7 @@ final class ConfigFileHelper {
             inputStream = new FileInputStream(configFilePath);
             prop.load(inputStream);
         } catch (IOException e) {
-            errorMessage(e.getMessage(), IO_ERROR);
+            errorMessage(LOGGER, e.getMessage(), IO_ERROR);
         }
         return prop;
     }

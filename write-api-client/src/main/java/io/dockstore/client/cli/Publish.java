@@ -48,7 +48,7 @@ class Publish {
             Gson gson = new Gson();
             output = gson.fromJson(content, Output.class);
         } catch (IOException e) {
-            ExceptionHelper.errorMessage("Could not read json file" + e.getMessage(), ExceptionHelper.CLIENT_ERROR);
+            ExceptionHelper.errorMessage(LOGGER, "Could not read json file" + e.getMessage(), ExceptionHelper.IO_ERROR);
         }
         return output;
     }
