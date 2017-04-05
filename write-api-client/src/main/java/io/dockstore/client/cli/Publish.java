@@ -24,8 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static io.dockstore.client.cli.ConfigFileHelper.getIniConfiguration;
-import static io.dockstore.client.cli.ExceptionHelper.CLIENT_ERROR;
-import static io.dockstore.client.cli.ExceptionHelper.errorMessage;
 
 /**
  * @author gluu
@@ -45,7 +43,7 @@ class Publish {
             Gson gson = new Gson();
             output = gson.fromJson(content, Output.class);
         } catch (IOException e) {
-            errorMessage("Could not read json file" + e.getMessage(), CLIENT_ERROR);
+            ExceptionHelper.errorMessage("Could not read json file" + e.getMessage(), ExceptionHelper.CLIENT_ERROR);
         }
         return output;
     }

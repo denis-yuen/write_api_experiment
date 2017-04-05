@@ -14,7 +14,7 @@ jdk:
   - oraclejdk8
 
 script:
-  - mvn clean install
+  - mvn -B clean install
 
 notifications:
   webhooks:

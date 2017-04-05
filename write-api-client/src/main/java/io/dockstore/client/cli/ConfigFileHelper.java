@@ -2,13 +2,15 @@ package io.dockstore.client.cli;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static io.dockstore.client.cli.ExceptionHelper.IO_ERROR;
+import static io.dockstore.client.cli.ExceptionHelper.errorMessage;
 
 /**
  * @author gluu
@@ -23,15 +25,13 @@ public final class ConfigFileHelper {
     static Properties getIniConfiguration() {
         Properties prop = new Properties();
         String userHome = System.getProperty("user.home");
-        String configFilePath = userHome + File.separator + ".dockstore" + File.separator + "config.properties";
-        InputStream inputStream = null;
+        String configFilePath = userHome + File.separator + ".dockstore" + File.separator + "write.api.config.properties";
+        InputStream inputStream;
         try {
             inputStream = new FileInputStream(configFilePath);
             prop.load(inputStream);
-        } catch (FileNotFoundException e) {
-            LOGGER.info(e.getMessage());
         } catch (IOException e) {
-            LOGGER.info(e.getMessage());
+            errorMessage(e.getMessage(), IO_ERROR);
         }
         return prop;
     }

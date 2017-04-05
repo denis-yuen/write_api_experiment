@@ -18,4 +18,7 @@
  * @author gluu
  * @since 22/03/17
  */
+/**
+ * This package defines the json classes used by the write-api-client
+ */
 package json;

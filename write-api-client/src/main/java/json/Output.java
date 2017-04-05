@@ -7,6 +7,11 @@ import com.google.gson.annotations.SerializedName;
  * @author gluu
  * @since 23/03/17
  */
+
+/**
+ * This is the json class for the output that is returned from the add command.
+ * It is used as input for the publish command.
+ */
 public class Output {
 
     @SerializedName("githubURL")

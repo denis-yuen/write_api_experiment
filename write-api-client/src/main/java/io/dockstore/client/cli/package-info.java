@@ -18,4 +18,8 @@
  * @author gluu
  * @since 22/03/17
  */
+
+/**
+ * This package allows command line interaction with the write-api-service
+ */
 package io.dockstore.client.cli;

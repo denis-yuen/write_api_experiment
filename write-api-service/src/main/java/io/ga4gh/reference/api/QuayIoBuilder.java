@@ -58,9 +58,9 @@ public class QuayIoBuilder {
             request.setArchiveUrl("https://github.com/" + githubOrg + "/" + gitRepo + "/archive/" + release + ".tar.gz");
             String subDirectory;
             if (choice) {
-                subDirectory = getSubdirectory1(quayRepo, release);
+                subDirectory = getSubdirectoryWithoutDockerfile(quayRepo, release);
             } else {
-                subDirectory = getSubdirectory2(quayRepo, release);
+                subDirectory = getSubdirectoryWithDockerfile(quayRepo, release);
             }
             request.setSubdirectory(subDirectory);
             List<String> tags = new ArrayList<>();
@@ -73,12 +73,12 @@ public class QuayIoBuilder {
         }
     }
 
-    public String getSubdirectory2(String name, String tag) {
+    public String getSubdirectoryWithDockerfile(String name, String tag) {
         return name + "-" + tag + "/" + "Dockerfile";
     }
 
 
-    public String getSubdirectory1(String name, String tag) {
+    public String getSubdirectoryWithoutDockerfile(String name, String tag) {
         return name + "-" + tag + "/";
     }
 
