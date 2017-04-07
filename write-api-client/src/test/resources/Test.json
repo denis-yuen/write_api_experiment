@@ -1,5 +1,5 @@
 {
-  "githubURL": "https://github.com/dockstore-testing/test_repo3",
-  "quayioURL": "https://quay.io/repository/dockstore-testing/test_repo3",
+  "githubURL": "https://github.com/dockstore-testing/travis-test",
+  "quayioURL": "https://quay.io/repository/dockstore-testing/travis-test",
   "version": "3.0"
 }

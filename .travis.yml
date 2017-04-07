@@ -5,6 +5,9 @@ notifications:
     rooms:
     - oicr:S9k4EowgQv9AnbCfEZHSzCsg
 
+services:
+  - postgresql
+
 cache:
   directories:
   - $HOME/.m2
@@ -12,6 +15,15 @@ cache:
 language: java
 jdk:
   - oraclejdk8
+before_install:
+  - 'wget https://artifacts.oicr.on.ca/artifactory/collab-release/io/dockstore/dockstore-webservice/${WEBSERVICE_VERSION}/dockstore-webservice-${WEBSERVICE_VERSION}.jar'
+  - 'chmod u+x dockstore-webservice-${WEBSERVICE_VERSION}.jar'
+  - 'sleep 3' # https://docs.travis-ci.com/user/gui-and-headless-browsers/#Using-xvfb-to-Run-Tests-That-Require-a-GUI
+
+before_script:
+  - psql 'postgres' -U postgres < travisci/db_dump.sql
+  - java -jar dockstore-webservice-${WEBSERVICE_VERSION}.jar server travisci/web.yml 1>/dev/null &
+  - 'sleep 20'
 
 script:
   - mvn -B clean install
