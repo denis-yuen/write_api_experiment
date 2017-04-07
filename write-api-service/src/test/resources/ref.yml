@@ -3,6 +3,13 @@ quayioToken: dummy-token
 
 server:
   rootPath: /api/ga4gh/v1
+  applicationConnectors:
+  - type: http
+    port: 1080
+  adminConnectors:
+  - type: http
+    port: 1081
+
 
 database:
 
