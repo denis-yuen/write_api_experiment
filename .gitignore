@@ -4,8 +4,6 @@
 *.swp
 
 # Contains SQL statements to initialize testing DB with a confidential user and tokens
-# Contains SQL statements to initialize testing DB with a confidential user, assuming they followed the dockstore setup tutorial
-*.sql
 
 *.gradle
 gradle.properties
