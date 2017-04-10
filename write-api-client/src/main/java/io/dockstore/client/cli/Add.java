@@ -29,13 +29,23 @@ import static io.dockstore.client.cli.ConfigFileHelper.getIniConfiguration;
  */
 class Add {
     // an organization for both GitHub and Quay.io where repos will be created (and deleted)
-    private static final Properties PROPERTIES = getIniConfiguration();
+    private static String config;
+    private static final Properties PROPERTIES = getIniConfiguration(getConfig());
     private static final String ORGANIZATION_NAME = PROPERTIES.getProperty("organization", "dockstore-testing");
     // repo name for GitHub and Quay.io, this repo will be created and deleted
     private static final String REPO_NAME = PROPERTIES.getProperty("repo", "test_repo3");
     private static final Logger LOGGER = LoggerFactory.getLogger(Add.class);
 
-    Add() {
+    Add(String config) {
+        setConfig(config);
+    }
+
+    public static String getConfig() {
+        return config;
+    }
+
+    public static void setConfig(String config) {
+        Add.config = config;
     }
 
     @Transaction

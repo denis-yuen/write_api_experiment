@@ -1,6 +1,5 @@
 package io.dockstore.client.cli;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,10 +26,8 @@ final class ConfigFileHelper {
      *
      * @return The configuration properties
      */
-    static Properties getIniConfiguration() {
+    static Properties getIniConfiguration(String configFilePath) {
         Properties prop = new Properties();
-        String userHome = System.getProperty("user.home");
-        String configFilePath = userHome + File.separator + ".dockstore" + File.separator + "write.api.config.properties";
         InputStream inputStream;
         try {
             inputStream = new FileInputStream(configFilePath);

@@ -31,9 +31,11 @@ import static io.dockstore.client.cli.ConfigFileHelper.getIniConfiguration;
  * @since 23/03/17
  */
 class Publish {
+    private static String config;
     private static final Logger LOGGER = LoggerFactory.getLogger(Publish.class);
 
-    Publish() {
+    Publish(String config) {
+        setConfig(config);
     }
 
     /**
@@ -55,6 +57,14 @@ class Publish {
         return output;
     }
 
+    public static String getConfig() {
+        return config;
+    }
+
+    public static void setConfig(String config) {
+        Publish.config = config;
+    }
+
     /**
      * Handles the publish command
      *
@@ -63,7 +73,7 @@ class Publish {
     @Transaction
     void handlePublish(String tool) {
         LOGGER.info("Handling publish");
-        Properties prop = getIniConfiguration();
+        Properties prop = getIniConfiguration(config);
         String token = prop.getProperty("token", "");
         String serverUrl = prop.getProperty("server-url", "https://www.dockstore.org:8443");
         ApiClient defaultApiClient;

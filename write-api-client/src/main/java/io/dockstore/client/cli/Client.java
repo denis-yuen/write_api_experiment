@@ -16,6 +16,8 @@
 
 package io.dockstore.client.cli;
 
+import java.io.File;
+
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.MissingCommandException;
 import com.beust.jcommander.Parameter;
@@ -77,7 +79,7 @@ public final class Client {
                 if (commandAdd.help) {
                     jc.usage("add");
                 } else {
-                    Add add = new Add();
+                    Add add = new Add(commandMain.config);
                     add.handleAdd(commandAdd.dockerfile, commandAdd.descriptor, commandAdd.secondaryDescriptor, commandAdd.version);
                 }
                 break;
@@ -85,7 +87,7 @@ public final class Client {
                 if (commandPublish.help) {
                     jc.usage("publish");
                 } else {
-                    Publish publish = new Publish();
+                    Publish publish = new Publish(commandMain.config);
                     publish.handlePublish(commandPublish.tool);
                 }
                 break;
@@ -132,6 +134,8 @@ public final class Client {
     private static class CommandMain {
         @Parameter(names = "--help", description = "Prints help for the client.", help = true)
         private boolean help = false;
+        @Parameter(names = "--config", description = "Config file location.")
+        private String config = System.getProperty("user.home") + File.separator + ".dockstore" + File.separator + "write.api.config.properties";
     }
 
 }

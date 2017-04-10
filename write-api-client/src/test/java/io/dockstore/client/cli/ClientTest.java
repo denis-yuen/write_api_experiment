@@ -174,7 +174,9 @@ public class ClientTest {
     public void publishToolWithTool() {
         File testJson = new File("src/test/resources/Test.json");
         String testJsonPath = testJson.getAbsolutePath();
-        String[] argv = { "publish", "--tool", testJsonPath };
+        File configFile = new File("src/test/resources/write.api.config.properties");
+        String configFilePath = configFile.getAbsolutePath();
+        String[] argv = { "--config", configFilePath, "publish", "--tool", testJsonPath };
         Client.main(argv);
         String log = systemOutRule.getLog();
         Assert.assertTrue(log.contains("Handling publish"));
