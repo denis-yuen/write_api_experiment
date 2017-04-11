@@ -135,7 +135,8 @@ public final class Client {
         @Parameter(names = "--help", description = "Prints help for the client.", help = true)
         private boolean help = false;
         @Parameter(names = "--config", description = "Config file location.")
-        private String config = System.getProperty("user.home") + File.separator + ".dockstore" + File.separator + "write.api.config.properties";
+        private String config =
+                System.getProperty("user.home") + File.separator + ".dockstore" + File.separator + "write.api.config.properties";
     }
 
 }

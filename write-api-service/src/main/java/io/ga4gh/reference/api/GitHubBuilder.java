@@ -164,7 +164,8 @@ public class GitHubBuilder {
         try {
             Map<String, Object> map = lowLevelGetRequest(
                     "https://api.github.com/repos/" + organization + "/" + repo + "/releases/tags/" + releaseName);
-            int releaseNumber = Double.valueOf((double)map.get("id")).intValue();
+
+            int releaseNumber = (Integer)map.get("id");
             // delete the release
             String uri = "/repos/" + organization + "/" + repo + "/releases/" + releaseNumber;
             LOG.info("GIT DELETE: " + uri);
@@ -216,6 +217,9 @@ public class GitHubBuilder {
 
         // might use reference later, but cannot figure out how to "target" a reference for branching
         //Reference reference = dService.getReference(fromId, "heads/" + defaultBranch);
+        if (latestRepositoryCommit == null) {
+            throw new RuntimeException("There is no commit.");
+        }
         LOG.debug("The SHA1 of the tag is: " + latestRepositoryCommit.getSha());
         try {
             // create branch if needed

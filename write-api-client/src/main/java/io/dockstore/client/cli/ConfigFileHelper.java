@@ -28,9 +28,7 @@ final class ConfigFileHelper {
      */
     static Properties getIniConfiguration(String configFilePath) {
         Properties prop = new Properties();
-        InputStream inputStream;
-        try {
-            inputStream = new FileInputStream(configFilePath);
+        try (InputStream inputStream = new FileInputStream(configFilePath)) {
             prop.load(inputStream);
         } catch (IOException e) {
             errorMessage(LOGGER, e.getMessage(), IO_ERROR);

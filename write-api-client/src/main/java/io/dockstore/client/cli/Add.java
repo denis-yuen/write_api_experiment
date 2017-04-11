@@ -28,13 +28,19 @@ import static io.dockstore.client.cli.ConfigFileHelper.getIniConfiguration;
  * @since 23/03/17
  */
 class Add {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Add.class);
+    private static final Properties PROPERTIES;
+    private static final String ORGANIZATION_NAME;
+    // repo name for GitHub and Quay.io, this repo will be created and deleted
+    private static final String REPO_NAME;
     // an organization for both GitHub and Quay.io where repos will be created (and deleted)
     private static String config;
-    private static final Properties PROPERTIES = getIniConfiguration(getConfig());
-    private static final String ORGANIZATION_NAME = PROPERTIES.getProperty("organization", "dockstore-testing");
-    // repo name for GitHub and Quay.io, this repo will be created and deleted
-    private static final String REPO_NAME = PROPERTIES.getProperty("repo", "test_repo3");
-    private static final Logger LOGGER = LoggerFactory.getLogger(Add.class);
+
+    static {
+        PROPERTIES = getIniConfiguration(getConfig());
+        ORGANIZATION_NAME = PROPERTIES.getProperty("organization", "dockstore-testing");
+        REPO_NAME = PROPERTIES.getProperty("repo", "test_repo3");
+    }
 
     Add(String config) {
         setConfig(config);
@@ -65,11 +71,6 @@ class Add {
         LOGGER.info("Handling add...");
         ToolDockerfile toolDockerfile = createToolDockerfile(dockerfile);
         ToolDescriptor toolDescriptor = createDescriptor(descriptor);
-        if (toolDockerfile == null) {
-            ExceptionHelper.errorMessage(LOGGER, "Dockerfile is empty.", ExceptionHelper.CLIENT_ERROR);
-        } else if (toolDescriptor == null) {
-            ExceptionHelper.errorMessage(LOGGER, "Descriptor is empty.", ExceptionHelper.CLIENT_ERROR);
-        }
         GAGHoptionalwriteApi api = WriteAPIServiceHelper.getGaghOptionalApi();
         Tool tool = createTool();
         Tool responseTool = null;
@@ -164,8 +165,11 @@ class Add {
 
     private ToolDockerfile createToolDockerfile(String stringPath) {
         ToolDockerfile toolDockerfile = new ToolDockerfile();
-        Path path = Paths.get(stringPath);
-        String fileName = path.getFileName().toString();
+        Path path = Paths.get(stringPath).getFileName();
+        if (path == null) {
+            throw new RuntimeException("Could not get file path.");
+        }
+        String fileName = path.toString();
         try {
             String content = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
             toolDockerfile.setDockerfile(content);
@@ -180,8 +184,11 @@ class Add {
     private ToolDescriptor createDescriptor(String stringPath) {
         ToolDescriptor toolDescriptor = new ToolDescriptor();
         try {
-            Path path = Paths.get(stringPath);
-            String fileName = path.getFileName().toString();
+            Path path = Paths.get(stringPath).getFileName();
+            if (path == null) {
+                throw new RuntimeException("Could not get file path.");
+            }
+            String fileName = path.toString();
             String content = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
             toolDescriptor.setDescriptor(content);
             toolDescriptor.setType(ToolDescriptor.TypeEnum.CWL);

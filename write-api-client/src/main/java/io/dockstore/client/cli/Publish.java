@@ -31,8 +31,8 @@ import static io.dockstore.client.cli.ConfigFileHelper.getIniConfiguration;
  * @since 23/03/17
  */
 class Publish {
-    private static String config;
     private static final Logger LOGGER = LoggerFactory.getLogger(Publish.class);
+    private static String config;
 
     Publish(String config) {
         setConfig(config);
