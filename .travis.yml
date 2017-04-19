@@ -30,9 +30,6 @@ before_script:
 script:
   - mvn -B clean install
 
-script:
-  - mvn -B clean install
-
 notifications:
   webhooks:
     urls:
