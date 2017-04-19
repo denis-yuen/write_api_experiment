@@ -19,7 +19,7 @@ final class WriteAPIServiceHelper {
 
     private WriteAPIServiceHelper() {
     }
-
+  
     /**
      * Gets the write-api-service
      *

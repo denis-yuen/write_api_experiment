@@ -39,7 +39,6 @@ public class Output {
     public void setQuayioURL(String quayioURL) {
         this.quayioURL = quayioURL;
     }
-
     public String getVersion() {
         return version;
     }

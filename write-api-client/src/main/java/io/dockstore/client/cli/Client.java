@@ -16,8 +16,8 @@
 
 package io.dockstore.client.cli;
 
-import java.io.File;
 
+import java.io.File;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.MissingCommandException;
 import com.beust.jcommander.Parameter;

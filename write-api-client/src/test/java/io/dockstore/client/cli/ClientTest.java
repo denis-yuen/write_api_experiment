@@ -169,7 +169,6 @@ public class ClientTest {
         Client.main(argv);
     }
 
-    //@Ignore("Test is ignored until there is a valid or mocked dockstore token")
     @Test
     public void publishToolWithTool() {
         File testJson = new File("src/test/resources/Test.json");

@@ -164,7 +164,6 @@ public class GitHubBuilder {
         try {
             Map<String, Object> map = lowLevelGetRequest(
                     "https://api.github.com/repos/" + organization + "/" + repo + "/releases/tags/" + releaseName);
-
             int releaseNumber = (Integer)map.get("id");
             // delete the release
             String uri = "/repos/" + organization + "/" + repo + "/releases/" + releaseNumber;
