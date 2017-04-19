@@ -14,6 +14,17 @@ import org.junit.contrib.java.lang.system.SystemOutRule;
  * @since 22/03/17
  */
 public class ClientTest {
+
+    private static final File descriptor = new File("src/test/resources/Dockstore.cwl");
+    private static final String descriptorPath = descriptor.getAbsolutePath();
+    private static final File dockerfile = new File("src/test/resources/Dockerfile");
+    private static final String dockerfilePath = dockerfile.getAbsolutePath();
+    private static final File testJson = new File("src/test/resources/Test.json");
+    private static final String testJsonPath = testJson.getAbsolutePath();
+    private static final File configFile = new File("src/test/resources/write.api.config.properties");
+    private static final String configFilePath = configFile.getAbsolutePath();
+    private static final File secondaryDescriptor = new File("src/test/resources/Dockstore.wdl");
+    private static final String secondaryDescriptorPath = secondaryDescriptor.getAbsolutePath();
     @Rule
     public final SystemOutRule systemOutRule = new SystemOutRule().enableLog();
 
@@ -73,13 +84,9 @@ public class ClientTest {
         Client.main(argv);
     }
 
-    @Ignore("Test is ignored until there are valid or mocked github and quay.io tokens")
+    @Ignore("Ignoring until write-api service is active")
     @Test
     public void addDockerfileWithDockerfileAndDescriptorWithDescriptor() {
-        File descriptor = new File("src/test/resources/Dockstore.cwl");
-        String descriptorPath = descriptor.getAbsolutePath();
-        File dockerfile = new File("src/test/resources/Dockerfile");
-        String dockerfilePath = dockerfile.getAbsolutePath();
         String[] argv = { "add", "--Dockerfile", dockerfilePath, "--cwl-file", descriptorPath };
         Client.main(argv);
         String log = systemOutRule.getLog();
@@ -99,15 +106,9 @@ public class ClientTest {
         Client.main(argv);
     }
 
-    @Ignore("Test is ignored until there are valid or mocked github and quay.io tokens")
+    @Ignore("Ignoring until write-api service is active")
     @Test
     public void addDockerfileWithDockerfileAndDescriptorWithDescriptorAndSecondaryDescriptorWithSecondaryDescriptor() {
-        File descriptor = new File("src/test/resources/Dockstore.cwl");
-        String descriptorPath = descriptor.getAbsolutePath();
-        File dockerfile = new File("src/test/resources/Dockerfile");
-        String dockerfilePath = dockerfile.getAbsolutePath();
-        File secondaryDescriptor = new File("src/test/resources/Dockstore.wdl");
-        String secondaryDescriptorPath = secondaryDescriptor.getAbsolutePath();
         String[] argv = { "add", "--Dockerfile", dockerfilePath, "--cwl-file", descriptorPath, "--cwl-secondary-file",
                 secondaryDescriptorPath };
         Client.main(argv);
@@ -116,24 +117,19 @@ public class ClientTest {
         Assert.assertTrue(log.contains("Successfully added."));
     }
 
-    @Ignore("Test is ignored until there are valid or mocked github and quay.io tokens")
+    @Ignore("Ignoring until write-api service is active")
     @Test
     public void addDockerfileWithDockerfileAndDescriptorWithDescriptorAndVersionWithVersion() {
-        String[] argv = { "add", "--Dockerfile", "dockerfile", "--cwl-file", "descriptor", "--version", "version" };
+        String[] argv = { "--config", configFilePath, "add", "--Dockerfile", dockerfilePath, "--cwl-file", descriptorPath, "--version",
+                "version" };
         Client.main(argv);
         String log = systemOutRule.getLog();
         Assert.assertTrue(log.contains("Handling add"));
     }
 
-    @Ignore("Test is ignored until there are valid or mocked github and quay.io tokens")
+    @Ignore("Ignoring until write-api service is active")
     @Test
     public void addEverything() {
-        File descriptor = new File("src/test/resources/Dockstore.cwl");
-        String descriptorPath = descriptor.getAbsolutePath();
-        File dockerfile = new File("src/test/resources/Dockerfile");
-        String dockerfilePath = dockerfile.getAbsolutePath();
-        File secondaryDescriptor = new File("src/test/resources/Dockstore.wdl");
-        String secondaryDescriptorPath = secondaryDescriptor.getAbsolutePath();
         String[] argv = { "add", "--Dockerfile", dockerfilePath, "--cwl-file", descriptorPath, "--cwl-secondary-file",
                 secondaryDescriptorPath, "--version", "3.0" };
         Client.main(argv);
@@ -171,10 +167,6 @@ public class ClientTest {
 
     @Test
     public void publishToolWithTool() {
-        File testJson = new File("src/test/resources/Test.json");
-        String testJsonPath = testJson.getAbsolutePath();
-        File configFile = new File("src/test/resources/write.api.config.properties");
-        String configFilePath = configFile.getAbsolutePath();
         String[] argv = { "--config", configFilePath, "publish", "--tool", testJsonPath };
         Client.main(argv);
         String log = systemOutRule.getLog();
