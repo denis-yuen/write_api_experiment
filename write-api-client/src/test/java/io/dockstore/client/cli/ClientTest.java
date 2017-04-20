@@ -3,7 +3,12 @@ package io.dockstore.client.cli;
 import java.io.File;
 
 import com.beust.jcommander.ParameterException;
+import io.dropwizard.testing.ResourceHelpers;
+import io.dropwizard.testing.junit.DropwizardAppRule;
+import io.ga4gh.reference.ServerApplication;
+import io.ga4gh.reference.ServerConfiguration;
 import org.junit.Assert;
+import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,6 +30,11 @@ public class ClientTest {
     private static final String configFilePath = configFile.getAbsolutePath();
     private static final File secondaryDescriptor = new File("src/test/resources/Dockstore.wdl");
     private static final String secondaryDescriptorPath = secondaryDescriptor.getAbsolutePath();
+
+    @ClassRule
+    public static final DropwizardAppRule<ServerConfiguration> RULE = new DropwizardAppRule<>(
+            ServerApplication.class, ResourceHelpers.resourceFilePath("ref.yml"));
+
     @Rule
     public final SystemOutRule systemOutRule = new SystemOutRule().enableLog();
 
@@ -117,7 +127,6 @@ public class ClientTest {
         Assert.assertTrue(log.contains("Successfully added."));
     }
 
-    @Ignore("Ignoring until write-api service is active")
     @Test
     public void addDockerfileWithDockerfileAndDescriptorWithDescriptorAndVersionWithVersion() {
         String[] argv = { "--config", configFilePath, "add", "--Dockerfile", dockerfilePath, "--cwl-file", descriptorPath, "--version",
