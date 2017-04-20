@@ -8,6 +8,7 @@ import io.dropwizard.testing.junit.DropwizardAppRule;
 import io.ga4gh.reference.ServerApplication;
 import io.ga4gh.reference.ServerConfiguration;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -34,6 +35,11 @@ public class ClientTest {
     @ClassRule
     public static final DropwizardAppRule<ServerConfiguration> RULE = new DropwizardAppRule<>(
             ServerApplication.class, ResourceHelpers.resourceFilePath("ref.yml"));
+
+    @Before
+    public void deleteRepository(){
+
+    }
 
     @Rule
     public final SystemOutRule systemOutRule = new SystemOutRule().enableLog();
@@ -94,7 +100,7 @@ public class ClientTest {
         Client.main(argv);
     }
 
-    @Ignore("Ignoring until write-api service is active")
+    @Ignore("Ignoring until we can delete repos.")
     @Test
     public void addDockerfileWithDockerfileAndDescriptorWithDescriptor() {
         String[] argv = { "add", "--Dockerfile", dockerfilePath, "--cwl-file", descriptorPath };
@@ -116,10 +122,10 @@ public class ClientTest {
         Client.main(argv);
     }
 
-    @Ignore("Ignoring until write-api service is active")
+    @Ignore("Ignoring until we can delete repos.")
     @Test
     public void addDockerfileWithDockerfileAndDescriptorWithDescriptorAndSecondaryDescriptorWithSecondaryDescriptor() {
-        String[] argv = { "add", "--Dockerfile", dockerfilePath, "--cwl-file", descriptorPath, "--cwl-secondary-file",
+        String[] argv = { "--config", configFilePath, "add", "--Dockerfile", dockerfilePath, "--cwl-file", descriptorPath, "--cwl-secondary-file",
                 secondaryDescriptorPath };
         Client.main(argv);
         String log = systemOutRule.getLog();
@@ -127,6 +133,7 @@ public class ClientTest {
         Assert.assertTrue(log.contains("Successfully added."));
     }
 
+    @Ignore("Ignoring until we can delete repos.")
     @Test
     public void addDockerfileWithDockerfileAndDescriptorWithDescriptorAndVersionWithVersion() {
         String[] argv = { "--config", configFilePath, "add", "--Dockerfile", dockerfilePath, "--cwl-file", descriptorPath, "--version",
@@ -136,10 +143,10 @@ public class ClientTest {
         Assert.assertTrue(log.contains("Handling add"));
     }
 
-    @Ignore("Ignoring until write-api service is active")
+
     @Test
     public void addEverything() {
-        String[] argv = { "add", "--Dockerfile", dockerfilePath, "--cwl-file", descriptorPath, "--cwl-secondary-file",
+        String[] argv = { "--config", configFilePath, "add", "--Dockerfile", dockerfilePath, "--cwl-file", descriptorPath, "--cwl-secondary-file",
                 secondaryDescriptorPath, "--version", "3.0" };
         Client.main(argv);
         String log = systemOutRule.getLog();

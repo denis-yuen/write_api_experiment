@@ -9,6 +9,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequest;
@@ -74,22 +75,34 @@ public class GitHubBuilder {
 
     }
 
+    private void wait(String organization, String repo) {
+        int i = 0;
+        while (!repoExists(organization, repo) && i < FIVE) {
+            try {
+                TimeUnit.SECONDS.sleep(i);
+                i++;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public boolean createRepo(String organization, String repo) {
         try {
             Repository repoTemplate = new Repository();
             repoTemplate.setName(repo);
             service.createRepository(organization, repoTemplate);
-            LOG.info("Repository created");
-
+            wait(organization, repo);
             // need to initialize the new repo, oddly not possible via API
             Map<String, Object> map = new HashMap<>();
             byte[] encode = Base64.getEncoder().encode("Test".getBytes(StandardCharsets.UTF_8));
             map.put("content", new String(encode, StandardCharsets.UTF_8));
             map.put("message", "test");
-
             String uri = "/repos/" + organization + "/" + repo + "/contents/readme.md";
             LOG.info("GIT PUT: " + uri);
+
             githubClient.put(uri, map, Map.class);
+            wait(organization, repo);
         } catch (RequestException e) {
             LOG.error("Was not able to create " + organization + "/" + repo + " and create readme.md. " + e.getMessage());
             // was not able to create the repo
@@ -127,7 +140,7 @@ public class GitHubBuilder {
                 contents = cService.getContents(repository, path);
 
             } catch (IOException e) {
-                LOG.info("Could not get contents.");
+                LOG.info("Could not get contents of " + path);
             }
             // no API for creating files? weird
             Map<String, Object> map = new HashMap<>();
@@ -149,6 +162,7 @@ public class GitHubBuilder {
 
     private boolean setDefaultBranch(String organization, String repo, String branchName) {
         Repository repository;
+        wait(organization, repo);
         try {
             repository = service.getRepository(organization, repo);
             repository.setDefaultBranch(branchName);
@@ -162,14 +176,17 @@ public class GitHubBuilder {
 
     public boolean createBranchAndRelease(String organization, String repo, String releaseName) {
         try {
+            wait(organization, repo);
             Map<String, Object> map = lowLevelGetRequest(
                     "https://api.github.com/repos/" + organization + "/" + repo + "/releases/tags/" + releaseName);
-            int releaseNumber = (Integer)map.get("id");
+            int releaseNumber = ((Double)map.get("id")).intValue();
+
             // delete the release
             String uri = "/repos/" + organization + "/" + repo + "/releases/" + releaseNumber;
             LOG.info("GIT DELETE: " + uri);
             githubClient.delete(uri);
             // delete the tag (makes the next release "stay" in the wrong place)
+            wait(organization, repo);
             String uri1 = "/repos/" + organization + "/" + repo + "/git/refs/tags/" + releaseName;
             LOG.info("GIT DELETE: " + uri1);
             githubClient.delete(uri1);
@@ -185,6 +202,7 @@ public class GitHubBuilder {
         // Currently there's no way to get a commit from another branch other than default
         // Setting default branch in order to get commit
 
+        wait(organization, repo);
         Repository repository;
 
         RepositoryCommit latestRepositoryCommit = null;
@@ -219,15 +237,16 @@ public class GitHubBuilder {
         if (latestRepositoryCommit == null) {
             throw new RuntimeException("There is no commit.");
         }
-        LOG.debug("The SHA1 of the tag is: " + latestRepositoryCommit.getSha());
+        LOG.info("The SHA1 of the tag is: " + latestRepositoryCommit.getSha());
         try {
             // create branch if needed
             Map<String, Object> branchMap = new HashMap<>();
             branchMap.put("ref", "refs/heads/" + releaseName);
             branchMap.put("sha", latestRepositoryCommit.getSha());
             String uri = "/repos/" + organization + "/" + repo + "/git/refs";
+            wait(organization, repo);
             LOG.info("GIT POST: " + uri);
-            Object post1 = githubClient.post(uri, branchMap, Map.class);
+            Object post1 = githubClient.post(uri, branchMap, HashMap.class);
         } catch (RequestException e) {
             // ignore exceptions if reference already exists
             if (!e.getMessage().contains("Reference already exists")) {
@@ -247,6 +266,7 @@ public class GitHubBuilder {
             releaseMap.put("name", releaseName);
             String uri = "/repos/" + organization + "/" + repo + "/releases";
             LOG.info("GIT POST: " + uri);
+            wait(organization, repo);
             Object post2 = githubClient.post(uri, releaseMap, Map.class);
         } catch (RequestException e) {
             LOG.info("Git tag already exists");

@@ -204,7 +204,6 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         String repo = split[1];
         String path = body.getUrl();
         String url = generateUrl(id, versionId, body.getUrl());
-        LOG.info("The URL of the descriptor is: " + url);
         ToolDescriptor byId = toolDescriptorDAO.findByPath(id, versionId, path);
         if (byId == null) {
             try {
