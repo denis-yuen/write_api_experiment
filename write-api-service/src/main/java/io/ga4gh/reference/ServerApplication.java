@@ -59,8 +59,8 @@ public class ServerApplication extends Application<ServerConfiguration> {
     public void run(ServerConfiguration configuration, Environment environment) {
         BeanConfig beanConfig = new BeanConfig();
         beanConfig.setSchemes(new String[] { "http" });
-        beanConfig.setHost("localhost:8080");
-        beanConfig.setBasePath("/");
+        beanConfig.setHost("localhost:1080");
+        beanConfig.setBasePath("/api/ga4gh/v1");
         beanConfig.setResourcePackage("io.swagger.server.api");
         beanConfig.setScan(true);
 
