@@ -43,6 +43,7 @@ public interface ToolDAO {
 
     @SqlUpdate("update tool set url = :url,"
             + "organization = :organization,"
+            + "toolname = :toolname,"
             + "description = :description,"
             + "author = :author,"
             + "verified = :verified,"

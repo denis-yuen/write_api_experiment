@@ -188,11 +188,8 @@ public class ToolsApiServiceImpl extends ToolsApiService {
     @Override
     public Response toolsIdVersionsVersionIdTypeDescriptorGet(String type, String id, String versionId, SecurityContext securityContext)
             throws NotFoundException {
-        // Removed the findById function because it could return more than one ToolDescriptor
-        // TODO: change to findByPath
-        // ToolDescriptor byId = toolDescriptorDAO.findById(id, versionId, type);
-        ToolDescriptor byId = null;
-        return Response.ok().entity(byId).build();
+        Iterator<ToolDescriptor> byId = toolDescriptorDAO.findById(id, versionId, type);
+        return Response.ok().entity(Lists.newArrayList(byId)).build();
     }
 
     @Transaction
