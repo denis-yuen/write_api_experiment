@@ -36,11 +36,6 @@ public class ClientTest {
     public static final DropwizardAppRule<ServerConfiguration> RULE = new DropwizardAppRule<>(
             ServerApplication.class, ResourceHelpers.resourceFilePath("ref.yml"));
 
-    @Before
-    public void deleteRepository(){
-
-    }
-
     @Rule
     public final SystemOutRule systemOutRule = new SystemOutRule().enableLog();
 

@@ -82,7 +82,7 @@ public class GitHubBuilder {
                 TimeUnit.SECONDS.sleep(i);
                 i++;
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }
     }
