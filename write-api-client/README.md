@@ -14,7 +14,7 @@ token=abcdefghijklmnopqrstuvwxyz
 server-url=https://www.dockstore.org:8443
 organization=test-organization
 repo=test-repository
-write-api-url=http://localhost:1080/api/ga4gh/v1
+write-api-url=http://localhost:8082/api/ga4gh/v1
 ```
 
 

@@ -20,7 +20,7 @@ final class WriteAPIServiceHelper {
      * @return The write-api-service
      */
     static GAGHoptionalwriteApi getGaghOptionalApi(Properties properties) {
-        String url = properties.getProperty("write-api-url", "http://localhost:1080/api/ga4gh/v1");
+        String url = properties.getProperty("write-api-url", "http://localhost:8082/api/ga4gh/v1");
         ApiClient client = new ApiClient();
         client.setBasePath(url);
         return new GAGHoptionalwriteApi(client);

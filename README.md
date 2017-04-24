@@ -5,5 +5,5 @@ This contains two parts:
 - The Write API web service that handles creation of GitHub and Quay repositories
 - The client that interacts with the web service and handles publishing of tools to Dockstore.
 
-See their respective READMEs in the write-api-client and write-api-service directories for more details.
+See their respective READMEs in the [write-api-client](write-api-client) and [write-api-service](write-api-service) directories for more details.
 
