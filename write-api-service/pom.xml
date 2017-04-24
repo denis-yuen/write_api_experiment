@@ -14,7 +14,7 @@
   ~    limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -305,7 +305,6 @@
             <artifactId>javax.ws.rs-api</artifactId>
             <version>2.0.1</version>
         </dependency>
-
 
 
         <!-- https://mvnrepository.com/artifact/junit/junit -->
@@ -638,14 +637,6 @@
             <artifactId>google-http-client</artifactId>
             <version>1.22.0</version>
         </dependency>
-
-        <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.5</version>
-        </dependency>
-
 
     </dependencies>
 
@@ -1059,7 +1050,7 @@
                             <excludeDefaultDirectories>true</excludeDefaultDirectories>
                             <filesets>
                                 <fileset>
-                                  <directory>target/generated-sources/swagger/src/main/java</directory>
+                                    <directory>target/generated-sources/swagger/src/main/java</directory>
                                 </fileset>
                             </filesets>
                         </configuration>

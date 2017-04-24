@@ -1,8 +1,6 @@
 package io.ga4gh.reference.api;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -11,21 +9,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestFactory;
-import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.HttpResponseException;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
-import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.eclipse.egit.github.core.Repository;
 import org.eclipse.egit.github.core.RepositoryBranch;
 import org.eclipse.egit.github.core.RepositoryCommit;
 import org.eclipse.egit.github.core.RepositoryContents;
 import org.eclipse.egit.github.core.client.GitHubClient;
+import org.eclipse.egit.github.core.client.GitHubRequest;
+import org.eclipse.egit.github.core.client.GitHubResponse;
 import org.eclipse.egit.github.core.client.RequestException;
 import org.eclipse.egit.github.core.service.CommitService;
 import org.eclipse.egit.github.core.service.ContentsService;
@@ -177,8 +169,15 @@ public class GitHubBuilder {
     public boolean createBranchAndRelease(String organization, String repo, String releaseName) {
         try {
             wait(organization, repo);
-            Map<String, Object> map = lowLevelGetRequest(
-                    "https://api.github.com/repos/" + organization + "/" + repo + "/releases/tags/" + releaseName);
+            GitHubRequest request = new GitHubRequest();
+            request.setUri("/repos/" + organization + "/" + repo + "/releases/tags/" + releaseName);
+            request.setType(Map.class);
+            GitHubResponse gitHubResponse = githubClient.get(request);
+            Map<String, Object> map = (Map<String, Object>)gitHubResponse.getBody();
+            if (map == null) {
+                LOG.info("Response is null");
+                throw new RuntimeException("Could not get tag");
+            }
             int releaseNumber = ((Double)map.get("id")).intValue();
 
             // delete the release
@@ -190,10 +189,15 @@ public class GitHubBuilder {
             String uri1 = "/repos/" + organization + "/" + repo + "/git/refs/tags/" + releaseName;
             LOG.info("GIT DELETE: " + uri1);
             githubClient.delete(uri1);
+        } catch (RequestException e) {
+            if (!e.getMessage().equals("Not Found (404)")) {
+                LOG.error("Could not get tag");
+                throw new RuntimeException(e);
+            }
         } catch (HttpResponseException e) {
             // ignore 404s
             if (e.getStatusCode() != HttpStatus.SC_NOT_FOUND) {
-                LOG.info("Could not delete release/tag");
+                LOG.error("Could not delete release/tag");
                 throw new RuntimeException(e);
             }
         } catch (IOException e) {
@@ -275,26 +279,5 @@ public class GitHubBuilder {
             throw new RuntimeException(e1);
         }
         return true;
-    }
-
-    /**
-     * An annoying workaround to the issue that some github APi calls
-     * are not exposed by egit library
-     *
-     * @param url
-     * @return
-     * @throws IOException
-     */
-    private Map<String, Object> lowLevelGetRequest(String url) throws IOException {
-        NetHttpTransport transport = new NetHttpTransport.Builder().build();
-        HttpRequestFactory requestFactory = transport.createRequestFactory();
-        HttpRequest httpRequest = requestFactory.buildGetRequest(new GenericUrl(url));
-        HttpResponse execute = httpRequest.execute();
-        InputStream content = execute.getContent();
-        String s = IOUtils.toString(content, StandardCharsets.UTF_8);
-        Gson gson = new Gson();
-        Type stringStringMap = new TypeToken<Map<String, Object>>() {
-        }.getType();
-        return gson.fromJson(s, stringStringMap);
     }
 }
