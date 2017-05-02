@@ -17,6 +17,9 @@ repo=test-repository
 write-api-url=http://localhost:8082/api/ga4gh/v1
 ```
 
+After building, the CLI's jar file can be found under at the directory:  write-api/write-api-client/target/
+
+The file will be named something like:  write-api-client-0.1-alpha.0-SNAPSHOT-shaded.jar
 
 The following is the CLI's usage:
 ```
