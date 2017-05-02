@@ -11,6 +11,6 @@ To build the service and the client use:
 ```
 mvn clean install -DskipTests
 ```
-Running tests will require configuration/properties files for both client and service.  Do not try to run "mvn clean install" without setting up those files first.
+Running tests will require configuration/properties files for both client and service.  Do not try to run "mvn clean install" without setting up those files first.  Additionally, both client and service tests will require Quay.io and GitHub tokens.
 See their respective READMEs in the [write-api-client](write-api-client) and [write-api-service](write-api-service) directories for more details.
 

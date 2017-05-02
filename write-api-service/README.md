@@ -30,7 +30,7 @@ You can also run tests to create GitHub and Quay.io repos while also scheduling 
 ```
 mvn clean install
 ```
-but this will require the proper environment variables above and you will also need to customize the desired github and quay.io repos. (Document line of test to change here)
+but this will require the proper environment variables above and you will also need to customize the desired github and quay.io repos.
 
 
 The basic workflow is that GitHub repos are created when posting a new tool. When files are posted or put to a version of a tool, we will create or delete and re-create a GitHub release with a matching name. When Dockerfiles are added, the tool will be created and built as a quay.io repo. After adding both dockerfiles and descriptors, you basically have a tool that is ready to be quick registered under a Dockstore 1.2 web service. Go to Dockstore, do a refresh, and then hit quick register on the repos that you wish to publish. You can also do this programmatically.
