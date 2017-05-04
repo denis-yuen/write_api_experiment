@@ -74,6 +74,7 @@ public class GitHubBuilder {
                 TimeUnit.SECONDS.sleep(i);
                 i++;
             } catch (InterruptedException e) {
+                LOG.error(e.getMessage());
                 throw new RuntimeException(e);
             }
         }
@@ -100,7 +101,8 @@ public class GitHubBuilder {
             // was not able to create the repo
             return false;
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            LOG.error(e.getMessage());
+            throw new RuntimeException("Could not create GitHub repository.  Check your GitHub token.");
         }
         return true;
     }
@@ -109,6 +111,7 @@ public class GitHubBuilder {
         try {
             return service.getRepository(organization, repo) != null;
         } catch (IOException e) {
+            LOG.warn("Could not get GitHub repository.");
             return false;
         }
     }
@@ -118,9 +121,9 @@ public class GitHubBuilder {
             Repository repository = service.getRepository(owner, name);
             return repository.getHtmlUrl();
         } catch (IOException e) {
-            return null;
+            LOG.error(e.getMessage());
+            throw new RuntimeException("Could not get Git URL.  Check your GitHub token");
         }
-
     }
 
     public boolean stashFile(String organization, String repo, String path, String content, String branch) {
@@ -148,6 +151,7 @@ public class GitHubBuilder {
             githubClient.put(uri, map, Map.class);
             return true;
         } catch (IOException e) {
+            LOG.error(e.getMessage());
             throw new RuntimeException(e);
         }
     }
@@ -160,8 +164,8 @@ public class GitHubBuilder {
             repository.setDefaultBranch(branchName);
             service.editRepository(repository);
         } catch (IOException e) {
-            LOG.info("Could not set default branch");
-            return false;
+            LOG.error(e.getMessage());
+            throw new RuntimeException("Could not set default GitHub repository branch.  Check your GitHub token");
         }
         return true;
     }
@@ -259,7 +263,7 @@ public class GitHubBuilder {
                 LOG.debug("Git branch already exists");
             }
         } catch (IOException e1) {
-            LOG.info("Could not create branch");
+            LOG.error("Could not create branch");
             throw new RuntimeException(e1);
         }
 

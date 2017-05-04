@@ -91,8 +91,7 @@ public class ToolsApiServiceImpl extends ToolsApiService {
     @Transaction
     @Override
     public Response toolsIdVersionsPost(String id, ToolVersion body, SecurityContext securityContext) throws NotFoundException {
-        // refresh the release on github
-        //gitHubBuilder.createBranchAndRelease(, , body.getName());
+        try {
         String[] split = id.split("/");
         LOG.info("Creating branch...");
         String organization = split[0];
@@ -112,7 +111,10 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         if (byId == null) {
             return Response.notModified().build();
         }
-        return Response.ok().entity(byId).build();
+            return Response.ok().entity(byId).build();
+        } catch (RuntimeException e) {
+            return Response.serverError().entity(e.getMessage()).build();
+        }
     }
 
     @Transaction
@@ -135,11 +137,13 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         String repo = split[1];
         gitHubBuilder.stashFile(organization, repo, dockerfile.getUrl(), dockerfile.getDockerfile(), versionId);
         gitHubBuilder.createBranchAndRelease(organization, repo, versionId);
-        if (!quayIoBuilder.repoExists(organization, repo)) {
-            quayIoBuilder.createRepo(organization, repo, repo);
-            LOG.info("Created quay.io repository.");
-        }
-        quayIoBuilder.triggerBuild(organization, organization, repo, repo, versionId, true);
+        try {
+            if (!quayIoBuilder.repoExists(organization, repo)) {
+                quayIoBuilder.createRepo(organization, repo, repo);
+                LOG.info("Created quay.io repository.");
+            }
+            quayIoBuilder.triggerBuild(organization, organization, repo, repo, versionId, true);
+
         String url = generateUrl(id, versionId, dockerfile.getUrl());
         dockerfile.setUrl(url);
         ToolDockerfile findById = toolDockerfileDAO.findById(id, versionId);
@@ -151,6 +155,7 @@ public class ToolsApiServiceImpl extends ToolsApiService {
                 LOG.info("Dockerfile already exists in database");
             }
         }
+
         toolDockerfileDAO.update(dockerfile, id, versionId);
         ToolDockerfile created = toolDockerfileDAO.findById(id, versionId);
 
@@ -159,6 +164,9 @@ public class ToolsApiServiceImpl extends ToolsApiService {
             return Response.ok().entity(created).build();
         }
         return Response.serverError().build();
+        } catch (RuntimeException e) {
+            return Response.serverError().entity(e.getMessage()).build();
+        }
     }
 
     @Override
@@ -196,26 +204,30 @@ public class ToolsApiServiceImpl extends ToolsApiService {
     @Override
     public Response toolsIdVersionsVersionIdTypeDescriptorPost(String type, String id, String versionId, ToolDescriptor body,
             SecurityContext securityContext) throws NotFoundException {
-        String[] split = id.split("/");
-        String organization = split[0];
-        String repo = split[1];
-        String path = body.getUrl();
-        String url = generateUrl(id, versionId, body.getUrl());
-        ToolDescriptor byId = toolDescriptorDAO.findByPath(id, versionId, path);
-        if (byId == null) {
-            try {
-                toolDescriptorDAO.insert(body.getDescriptor(), id, versionId, path);
-            } catch (UnableToExecuteStatementException e) {
-                LOG.debug("Descriptor already exists in database");
+        try {
+            String[] split = id.split("/");
+            String organization = split[0];
+            String repo = split[1];
+            String path = body.getUrl();
+            String url = generateUrl(id, versionId, body.getUrl());
+            ToolDescriptor byId = toolDescriptorDAO.findByPath(id, versionId, path);
+            if (byId == null) {
+                try {
+                    toolDescriptorDAO.insert(body.getDescriptor(), id, versionId, path);
+                } catch (UnableToExecuteStatementException e) {
+                    LOG.debug("Descriptor already exists in database");
 
+                }
             }
+            gitHubBuilder.stashFile(organization, repo, body.getUrl(), body.getDescriptor(), versionId);
+            // TODO: improve this, this looks slow and awkward
+            body.setUrl(url);
+            toolDescriptorDAO.update(body, id, versionId, path);
+            byId = toolDescriptorDAO.findByPath(id, versionId, path);
+            return Response.ok().entity(byId).build();
+        } catch (RuntimeException e) {
+            return Response.serverError().entity(e.getMessage()).build();
         }
-        gitHubBuilder.stashFile(organization, repo, body.getUrl(), body.getDescriptor(), versionId);
-        // TODO: improve this, this looks slow and awkward
-        body.setUrl(url);
-        toolDescriptorDAO.update(body, id, versionId, path);
-        byId = toolDescriptorDAO.findByPath(id, versionId, path);
-        return Response.ok().entity(byId).build();
     }
 
     @Override
@@ -252,26 +264,30 @@ public class ToolsApiServiceImpl extends ToolsApiService {
     @Transaction
     @Override
     public Response toolsPost(Tool body, SecurityContext securityContext) throws NotFoundException {
-        // try creating a repo on github for this, this should probably be made into a transaction
-        if (!gitHubBuilder.repoExists(body.getOrganization(), body.getToolname())) {
-            LOG.info("Repo does not exist");
-            boolean repo = gitHubBuilder.createRepo(body.getOrganization(), body.getToolname());
-            if (!repo) {
-                return Response.notModified("Could not create github repo").build();
-            }
-        }
         try {
-            toolDAO.insert(body.getId());
-        } catch (UnableToExecuteStatementException e) {
-            LOG.info("Tool already exists in database");
+            if (!gitHubBuilder.repoExists(body.getOrganization(), body.getToolname())) {
+                LOG.info("Repo does not exist");
+                boolean repo = gitHubBuilder.createRepo(body.getOrganization(), body.getToolname());
+                if (!repo) {
+                    return Response.notModified("Could not create github repo").build();
+                }
+            }
+            try {
+                toolDAO.insert(body.getId());
+            } catch (UnableToExecuteStatementException e) {
+                LOG.info("Tool already exists in database");
+            }
+            String gitUrl = gitHubBuilder.getGitUrl(body.getOrganization(), body.getToolname());
+            body.setUrl(gitUrl);
+            toolDAO.update(body);
+            Tool byId = toolDAO.findById(body.getId());
+            if (byId != null) {
+                return Response.ok().entity(byId).build();
+            }
+            return Response.notModified().build();
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return Response.serverError().entity(e.getMessage()).build();
         }
-        String gitUrl = gitHubBuilder.getGitUrl(body.getOrganization(), body.getToolname());
-        body.setUrl(gitUrl);
-        toolDAO.update(body);
-        Tool byId = toolDAO.findById(body.getId());
-        if (byId != null) {
-            return Response.ok().entity(byId).build();
-        }
-        return Response.notModified().build();
     }
 }
