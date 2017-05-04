@@ -174,3 +174,10 @@ This command interacts with the Dockstore web service to perform several operati
 1. Refresh all of the user's tools (based on the token present in the properties file) which will register it on Dockstore
 2. Add Quay.io tags and its GitHub reference to that tool on Dockstore
 3. If that tool is valid, it will attempt to publish that tool on Dockstore
+
+Sample Publish Command Output:
+```
+$ java -jar write-api-client-*-shaded.jar publish --tool test.json
+INFO  [2017-05-04 20:29:40,088] io.dockstore.client.cli.Publish: Handling publish
+INFO  [2017-05-04 20:29:58,637] io.dockstore.client.cli.Publish: Successfully published tool.
+```
