@@ -4,11 +4,11 @@
 
 This is an experimental service aimed at two tasks
 1. Providing a concrete reference implementation of a proposed GA4GH [Write API](https://github.com/ga4gh/tool-registry-schemas/blob/feature/write_api_presentation/src/main/resources/swagger/ga4gh-tool-discovery.yaml).
-2. Providing a utility for developers to convert plain CWL/WDL files and Dockerfiles into [GitHub](https://github.com) repos storing those plain CWL/WDL files and [Quay.io](https://quay.io) repos storing Docker images built from those Dockerfiles. This can be used by those converting tools described in other formats into "Dockstore-friendly" tools that can be quickly registered and published in Dockstore by using the Write API Client's publish or programmatically via the Dockstore API.
+2. Providing a utility for developers to convert plain CWL/WDL files and Dockerfiles into [GitHub](https://github.com) repos storing those plain CWL/WDL files and [Quay.io](https://quay.io) repos storing Docker images built from those Dockerfiles. This can be used by those converting tools described in other formats into "Dockstore-friendly" tools that can be quickly registered and published in Dockstore by using the Write API Client's publish command or programmatically via the Dockstore API.
 
 This contains two parts:
 - The Write API web service that handles creation of GitHub and Quay.io repositories
-- The Write API client that interacts with the web service and can also handle publishing of tools to Dockstore.
+- The Write API client that interacts with the web service to create GitHub and Quay.io repositories and can also handle publishing of tools to Dockstore.
 
 
 ## Web Service Prerequisites
@@ -44,7 +44,7 @@ The example.yml shown previously uses port 8082 by default, this can be changed.
 
 After running the webservice, you can check out the web service endpoints through swagger.  By default, it is available at http://localhost:8082/static/swagger-ui/index.html and then http://localhost:8082/api/ga4gh/v1/swagger.json will need to be entered in the first text field (top left).
 
-The basic workflow is that GitHub repos are created when posting a new tool. When files are posted or put to a version of a tool, we will create or delete and re-create a GitHub release/branch/tag with a matching name. When Dockerfiles are added, the tool will be created and built as a Quay.io repo. After adding both Dockerfiles and descriptors, you basically have a tool that is ready to be quickly registered under a Dockstore 1.2 web service. Go to Dockstore, do a refresh, and then hit quick register on the repos that you wish to publish. You can also do this programmatically.
+The basic workflow is that GitHub repos are created when posting a new tool. When files are posted or put to a version of a tool, we will create or delete and re-create a GitHub release/branch/tag with a matching name. When Dockerfiles are added, the tool will be created and built as a Quay.io repo. After adding both Dockerfiles and descriptors, you basically have a tool that is ready to be quickly registered and published under a Dockstore 1.2 web service. Go to Dockstore, do a refresh, and then hit quick register on the repos that you wish to publish. You can also do this programmatically through the write api client.
 
 ## Limitations
 
@@ -84,6 +84,8 @@ By default, the client will look for the properties file at the following locati
 ```
 ~/.dockstore/write.api.config.properties
 ```
+otherwise, you can specify your own with the --config option.
+
 Here is the general usage information for the client:
 ```
 $ java -jar write-api-client-*-shaded.jar --help
@@ -181,3 +183,5 @@ $ java -jar write-api-client-*-shaded.jar publish --tool test.json
 INFO  [2017-05-04 20:29:40,088] io.dockstore.client.cli.Publish: Handling publish
 INFO  [2017-05-04 20:29:58,637] io.dockstore.client.cli.Publish: Successfully published tool.
 ```
+
+After successfully running the Publish command, the tool should be available on Dockstore for everyone to use.
