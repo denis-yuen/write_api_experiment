@@ -132,10 +132,45 @@ The Add command has 3 required parameters:
 - --dockerfile (the Dockerfile that you want to upload to GitHub and build on Quay.io)
 - --id (the GitHub organization and repository to upload the Dockerfile and CWL descriptor to which is also the same name as the Quay.io repository)
 
-This command interacts with the write API web service to perform several oeprations:
+This command interacts with the write API web service to perform several operations:
 1.  Create GitHub and Quay.io repository if it doesn't exist based on the --id
 2.  Create a new GitHub branch/tag/release (1.0 if version is not specified)
 3.  Upload Dockerfile to that specific version and build the image on Quay.io
 4.  Upload CWL descriptor files
 5.  Upload secondary CWL descriptor if it was specified
 6.  Output JSON object that contains the GitHub repo, Quay.io repo, and version number
+
+Sample Add Command Output:
+```
+$ java -jar write-api-client-*-shaded.jar add --Dockerfile Dockerfile --cwl-file Dockstore.cwl --id dockstore-testing/travis-test
+15:51:55.511 [main] INFO io.dockstore.client.cli.Add - Handling add...
+15:51:56.509 [main] INFO io.dockstore.client.cli.Add - Created repository on git.
+15:51:59.108 [main] INFO io.dockstore.client.cli.Add - Created branch, tag, and release on git.
+15:52:04.799 [main] INFO io.dockstore.client.cli.Add - Created dockerfile on git.
+15:52:06.037 [main] INFO io.dockstore.client.cli.Add - Created descriptor on git.
+15:52:06.061 [main] INFO io.dockstore.client.cli.Add - Successfully added tool.
+{
+  "githubURL": "https://github.com/dockstore-testing/travis-test",
+  "quayioURL": "https://quay.io/repository/dockstore-testing/travis-test",
+  "version": "1.0"
+}
+```
+
+You can pipe this command to an output file like "> test.json" and you can then use this output for the publish command.
+
+### Publish command
+
+The Publish Command has one required parameter:
+- --tool (the absolute path to the file containing the output from the add command) which contains something like this:
+```
+{
+  "githubURL": "https://github.com/dockstore-testing/travis-test",
+  "quayioURL": "https://quay.io/repository/dockstore-testing/travis-test",
+  "version": "1.0"
+}
+```
+
+This command interacts with the Dockstore web service to perform several operations:
+1. Refresh all of the user's tools (based on the token present in the properties file) which will register it on Dockstore
+2. Add Quay.io tags and its GitHub reference to that tool on Dockstore
+3. If that tool is valid, it will attempt to publish that tool on Dockstore
