@@ -52,11 +52,13 @@ public final class Client {
 
         CommandAdd commandAdd = new CommandAdd();
         CommandPublish commandPublish = new CommandPublish();
+        CommandCheck commandCheck = new CommandCheck();
 
         JCommander jc = new JCommander(commandMain);
 
         jc.addCommand("add", commandAdd);
         jc.addCommand("publish", commandPublish);
+        jc.addCommand("check", commandCheck);
 
         jc.setProgramName("client");
         try {
@@ -89,6 +91,14 @@ public final class Client {
                 } else {
                     Publish publish = new Publish(commandMain.config);
                     publish.handlePublish(commandPublish.tool);
+                }
+                break;
+            case "check":
+                if (commandCheck.help) {
+                    jc.usage("check");
+                } else {
+                    Check check = new Check(commandMain.config);
+                    check.handleCheck(commandCheck.id, commandCheck.version);
                 }
                 break;
             default:

@@ -107,7 +107,7 @@ class Publish {
             containertagsApi.updateTags(dockstoreTool.getId(), tagsByPath);
             containersApi.refresh(dockstoreTool.getId());
         } catch (ApiException e) {
-            LOGGER.info(e.getMessage());
+            LOGGER.error("Could not refresh tool" + e.getMessage());
             return;
         }
         try {
@@ -115,7 +115,7 @@ class Publish {
             pub.setPublish(true);
             containersApi.publish(dockstoreTool.getId(), pub);
         } catch (ApiException e) {
-            LOGGER.info(e.getMessage());
+            LOGGER.error("Could not publish tool" + e.getMessage());
             return;
         }
         LOGGER.info("Successfully published tool.");

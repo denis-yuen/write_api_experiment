@@ -34,6 +34,7 @@ public class ClientTest {
     private static final File secondaryDescriptor = new File("src/test/resources/Dockstore.wdl");
     private static final String secondaryDescriptorPath = secondaryDescriptor.getAbsolutePath();
     private static final String id = "dockstore-testing/travis-test";
+    private static final String version = "3.0";
     @Rule
     public final SystemOutRule systemOutRule = new SystemOutRule().enableLog();
 
@@ -130,7 +131,7 @@ public class ClientTest {
     @Test
     public void addDockerfileWithDockerfileAndDescriptorWithDescriptorAndVersionWithVersion() {
         String[] argv = { "--config", configFilePath, "add", "--id", id, "--Dockerfile", dockerfilePath, "--cwl-file", descriptorPath,
-                "--version", "version" };
+                "--version", version };
         Client.main(argv);
         String log = systemOutRule.getLog();
         Assert.assertTrue(log.contains("Handling add"));
@@ -139,7 +140,7 @@ public class ClientTest {
     @Test
     public void addEverything() {
         String[] argv = { "--config", configFilePath, "add", "--id", id, "--Dockerfile", dockerfilePath, "--cwl-file", descriptorPath,
-                "--cwl-secondary-file", secondaryDescriptorPath, "--version", "3.0" };
+                "--cwl-secondary-file", secondaryDescriptorPath, "--version", version };
         Client.main(argv);
         String log = systemOutRule.getLog();
         Assert.assertTrue(log.contains("Handling add"));
@@ -179,6 +180,15 @@ public class ClientTest {
         Client.main(argv);
         String log = systemOutRule.getLog();
         Assert.assertTrue(log.contains("Handling publish"));
+    }
+
+    @Ignore
+    @Test
+    public void check(){
+        String[] argv = {"--config", configFilePath, "check", "--id", id, "--version", version};
+        Client.main(argv);
+        String log = systemOutRule.getLog();
+        Assert.assertTrue(log.contains("Handling check"));
     }
 
     private void checkUsage(String log) {
