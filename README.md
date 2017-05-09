@@ -37,6 +37,7 @@ This contains two parts:
   - Create Repositories
   - View all visible repositories
   - Read/Write to any accessible repository
+  - Administer User
 
 - A Quay.io organization
 
