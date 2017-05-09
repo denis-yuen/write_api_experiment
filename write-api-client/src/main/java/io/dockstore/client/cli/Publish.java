@@ -99,10 +99,23 @@ class Publish {
         String namespace = bits[bits.length - 2];
 
         DockstoreTool dockstoreTool;
+
         try {
             dockstoreTool = containersApi.getContainerByToolPath("quay.io" + "/" + namespace + "/" + name);
-            ContainertagsApi containertagsApi = new ContainertagsApi(defaultApiClient);
-            List<Tag> tagsByPath = containertagsApi.getTagsByPath(dockstoreTool.getId());
+        } catch (ApiException e) {
+            LOGGER.error("Could not get tool by tool path");
+            return;
+        }
+        ContainertagsApi containertagsApi = new ContainertagsApi(defaultApiClient);
+
+        List<Tag> tagsByPath;
+        try {
+            tagsByPath = containertagsApi.getTagsByPath(dockstoreTool.getId());
+        } catch (ApiException e) {
+            LOGGER.error("Could not get tool tags by path");
+            return;
+        }
+        try {
             Tag first = tagsByPath.parallelStream().filter(tag -> tag.getName().equals(output.getVersion())).findFirst().orElse(null);
             first.setReference(output.getVersion());
             containertagsApi.updateTags(dockstoreTool.getId(), tagsByPath);
@@ -110,10 +123,10 @@ class Publish {
         } catch (ApiException e) {
             LOGGER.error("Could not refresh tool" + e.getMessage());
             try {
-                List<DockstoreTool> dockstoreTools = containersApi.allContainers();
-                dockstoreTools.parallelStream().forEach(dockstoreTool1 -> LOGGER.error(dockstoreTool1.getPath()));
                 User user = usersApi.getUser();
                 Long id = user.getId();
+                List<DockstoreTool> dockstoreTools = usersApi.userContainers(id);
+                dockstoreTools.parallelStream().forEach(dockstoreTool1 -> LOGGER.error(dockstoreTool1.getPath()));
                 List<Token> dockstoreUserTokens = usersApi.getDockstoreUserTokens(id);
                 List<Token> quayUserTokens = usersApi.getQuayUserTokens(id);
                 List<Token> githubUserTokens = usersApi.getGithubUserTokens(id);
