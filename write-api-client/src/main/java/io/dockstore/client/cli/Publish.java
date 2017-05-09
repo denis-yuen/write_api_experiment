@@ -118,8 +118,8 @@ class Publish {
                 List<Token> quayUserTokens = usersApi.getQuayUserTokens(id);
                 List<Token> githubUserTokens = usersApi.getGithubUserTokens(id);
                 dockstoreUserTokens.parallelStream().forEach(token1 -> LOGGER.info("Dockstore token: " + token1.getContent()));
-                quayUserTokens.parallelStream().forEach(token1 -> LOGGER.info("Quay token: " + token1.getContent()));
-                githubUserTokens.parallelStream().forEach(token1 -> LOGGER.info("GitHub token: " + token1.getContent()));
+                quayUserTokens.parallelStream().forEach(token1 -> LOGGER.info("Quay token: " + token1.getId()));
+                githubUserTokens.parallelStream().forEach(token1 -> LOGGER.info("GitHub token: " + token1.getId()));
             } catch (ApiException e1) {
                 LOGGER.error("Could not get all tools");
             }
