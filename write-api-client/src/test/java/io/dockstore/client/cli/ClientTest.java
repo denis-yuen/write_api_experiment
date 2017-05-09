@@ -179,7 +179,7 @@ public class ClientTest {
         String[] argv = { "--config", configFilePath, "publish", "--tool", testJsonPath };
         Client.main(argv);
         String log = systemOutRule.getLog();
-        Assert.assertTrue(log.contains("Handling publish"));
+        Assert.assertTrue("Expecting \"Successfully published tool\" but got " + log, log.contains("Successfully published tool"));
     }
 
     @Ignore
