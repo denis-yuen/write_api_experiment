@@ -18,6 +18,7 @@ import io.swagger.client.api.UsersApi;
 import io.swagger.client.model.DockstoreTool;
 import io.swagger.client.model.PublishRequest;
 import io.swagger.client.model.Tag;
+import io.swagger.client.model.Token;
 import io.swagger.client.model.User;
 import json.Output;
 import org.skife.jdbi.v2.sqlobject.Transaction;
@@ -108,6 +109,20 @@ class Publish {
             containersApi.refresh(dockstoreTool.getId());
         } catch (ApiException e) {
             LOGGER.error("Could not refresh tool" + e.getMessage());
+            try {
+                List<DockstoreTool> dockstoreTools = containersApi.allContainers();
+                dockstoreTools.parallelStream().forEach(dockstoreTool1 -> LOGGER.error(dockstoreTool1.getPath()));
+                User user = usersApi.getUser();
+                Long id = user.getId();
+                List<Token> dockstoreUserTokens = usersApi.getDockstoreUserTokens(id);
+                List<Token> quayUserTokens = usersApi.getQuayUserTokens(id);
+                List<Token> githubUserTokens = usersApi.getGithubUserTokens(id);
+                dockstoreUserTokens.parallelStream().forEach(token1 -> LOGGER.info("Dockstore token: " + token1.getContent()));
+                quayUserTokens.parallelStream().forEach(token1 -> LOGGER.info("Quay token: " + token1.getContent()));
+                githubUserTokens.parallelStream().forEach(token1 -> LOGGER.info("GitHub token: " + token1.getContent()));
+            } catch (ApiException e1) {
+                LOGGER.error("Could not get all tools");
+            }
             return;
         }
         try {
