@@ -104,6 +104,20 @@ class Publish {
             dockstoreTool = containersApi.getContainerByToolPath("quay.io" + "/" + namespace + "/" + name);
         } catch (ApiException e) {
             LOGGER.error("Could not get tool by tool path");
+            try {
+                User user = usersApi.getUser();
+                Long id = user.getId();
+                List<DockstoreTool> dockstoreTools = usersApi.userContainers(id);
+                dockstoreTools.parallelStream().forEach(dockstoreTool1 -> LOGGER.info(dockstoreTool1.getPath()));
+                List<Token> dockstoreUserTokens = usersApi.getDockstoreUserTokens(id);
+                List<Token> quayUserTokens = usersApi.getQuayUserTokens(id);
+                List<Token> githubUserTokens = usersApi.getGithubUserTokens(id);
+                dockstoreUserTokens.parallelStream().forEach(token1 -> LOGGER.info("Dockstore token: " + token1.getContent()));
+                quayUserTokens.parallelStream().forEach(token1 -> LOGGER.info("Quay token: " + token1.getId()));
+                githubUserTokens.parallelStream().forEach(token1 -> LOGGER.info("GitHub token: " + token1.getId()));
+            } catch (ApiException e1) {
+                LOGGER.error("Could not get all tools");
+            }
             return;
         }
         ContainertagsApi containertagsApi = new ContainertagsApi(defaultApiClient);
@@ -122,20 +136,6 @@ class Publish {
             containersApi.refresh(dockstoreTool.getId());
         } catch (ApiException e) {
             LOGGER.error("Could not refresh tool" + e.getMessage());
-            try {
-                User user = usersApi.getUser();
-                Long id = user.getId();
-                List<DockstoreTool> dockstoreTools = usersApi.userContainers(id);
-                dockstoreTools.parallelStream().forEach(dockstoreTool1 -> LOGGER.error(dockstoreTool1.getPath()));
-                List<Token> dockstoreUserTokens = usersApi.getDockstoreUserTokens(id);
-                List<Token> quayUserTokens = usersApi.getQuayUserTokens(id);
-                List<Token> githubUserTokens = usersApi.getGithubUserTokens(id);
-                dockstoreUserTokens.parallelStream().forEach(token1 -> LOGGER.info("Dockstore token: " + token1.getContent()));
-                quayUserTokens.parallelStream().forEach(token1 -> LOGGER.info("Quay token: " + token1.getId()));
-                githubUserTokens.parallelStream().forEach(token1 -> LOGGER.info("GitHub token: " + token1.getId()));
-            } catch (ApiException e1) {
-                LOGGER.error("Could not get all tools");
-            }
             return;
         }
         try {
