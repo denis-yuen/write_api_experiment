@@ -35,6 +35,7 @@ import static io.dockstore.client.cli.ConfigFileHelper.getIniConfiguration;
 class Publish {
     private static final Logger LOGGER = LoggerFactory.getLogger(Publish.class);
     private static String config;
+    private static final int ONE_HUNDRED = 100;
 
     Publish(String config) {
         setConfig(config);
@@ -90,12 +91,13 @@ class Publish {
             Long userId = user.getId();
             usersApi.refresh(userId);
             try {
-                TimeUnit.SECONDS.sleep(100);
+                TimeUnit.SECONDS.sleep(ONE_HUNDRED);
             } catch (InterruptedException e) {
                 throw new RuntimeException("Could not sleep", e);
             }
         } catch (ApiException e) {
             LOGGER.info(e.getMessage());
+            return;
         }
         Output output = getJson(tool);
         String gitURL = output.getGithubURL();
