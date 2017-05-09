@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import com.google.gson.Gson;
 import io.swagger.client.ApiClient;
@@ -88,6 +89,11 @@ class Publish {
             User user = usersApi.getUser();
             Long userId = user.getId();
             usersApi.refresh(userId);
+            try {
+                TimeUnit.SECONDS.sleep(100);
+            } catch (InterruptedException e) {
+                throw new RuntimeException("Could not sleep", e);
+            }
         } catch (ApiException e) {
             LOGGER.info(e.getMessage());
         }
@@ -103,11 +109,13 @@ class Publish {
         try {
             dockstoreTool = containersApi.getContainerByToolPath("quay.io" + "/" + namespace + "/" + name);
         } catch (ApiException e) {
+            e.printStackTrace();
             LOGGER.error("Could not get tool by tool path");
             try {
                 User user = usersApi.getUser();
                 Long id = user.getId();
                 List<DockstoreTool> dockstoreTools = usersApi.userContainers(id);
+
                 dockstoreTools.parallelStream().forEach(dockstoreTool1 -> LOGGER.info(dockstoreTool1.getPath()));
                 List<Token> dockstoreUserTokens = usersApi.getDockstoreUserTokens(id);
                 List<Token> quayUserTokens = usersApi.getQuayUserTokens(id);
@@ -116,6 +124,7 @@ class Publish {
                 quayUserTokens.parallelStream().forEach(token1 -> LOGGER.info("Quay token: " + token1.getId()));
                 githubUserTokens.parallelStream().forEach(token1 -> LOGGER.info("GitHub token: " + token1.getId()));
             } catch (ApiException e1) {
+                e1.printStackTrace();
                 LOGGER.error("Could not get all tools");
             }
             return;
@@ -126,6 +135,7 @@ class Publish {
         try {
             tagsByPath = containertagsApi.getTagsByPath(dockstoreTool.getId());
         } catch (ApiException e) {
+            e.printStackTrace();
             LOGGER.error("Could not get tool tags by path");
             return;
         }
@@ -135,6 +145,7 @@ class Publish {
             containertagsApi.updateTags(dockstoreTool.getId(), tagsByPath);
             containersApi.refresh(dockstoreTool.getId());
         } catch (ApiException e) {
+            e.printStackTrace();
             LOGGER.error("Could not refresh tool" + e.getMessage());
             return;
         }
