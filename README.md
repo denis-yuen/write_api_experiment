@@ -26,6 +26,10 @@ This contains two parts:
 - [GitHub token](https://github.com)
 
   Learn how to create tokens on GitHub [here](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/).  You will need the scope "repo".
+
+- A GitHub organization
+
+  Your GitHub token must have access to an existing GitHub organization.  The Write API web service currently does not create GitHub organizations.  The name of this organization must match the Quay.io organization.
 - [Quay.io token](https://quay.io)
 
   Learn how to create a token on Quay.io for your organization [here](https://docs.quay.io/api/) under the heading "Generating a Token (for internal application use)". You will need to provide these permissions:
@@ -33,6 +37,10 @@ This contains two parts:
   - Create Repositories
   - View all visible repositories
   - Read/Write to any accessible repository
+
+- A Quay.io organization
+
+  Your Quay.io token msut have access to an existing Quay.io organization.  The Write API web service currently does not create Quay.io organiztaions.  The name of this organization must match the GitHub organization.
 
 ## Web Service Usage
 
@@ -202,3 +210,21 @@ INFO  [2017-05-04 20:29:58,637] io.dockstore.client.cli.Publish: Successfully pu
 #### Result:
 
 After successfully running the Publish command, the tool should be marked as valid and available on Dockstore for everyone to use.
+
+## Tests
+
+If you wish to run the tests, you must ensure all configuration stated in both the Write API client and web service is completed.  Additionally there are a few files that must also be modified.   
+1.  write_api/write-api-client/src/test/java/io/dockstore/client/cli/ClientTest.java contains a line with:
+  ```
+  private static final String id = "dockstore-testing/travis-test";
+  ```
+  In this example, "dockstore-testing" is the GitHub organization and Quay.io namespace, "travis-test" is the Quay.io and GitHub repository.
+  Modify this line so that:
+  - Your GitHub and Quay.io tokens have access to the organization/namespace.
+  - The repository is something you want created.
+2.  If you're not exporting Quay.io and GitHub tokens, you'll have to modify write_api/write-api-client/src/test/resources/ref.yml and write_api/write-api-service/src/test/resources/ref.yml by replacing its dummy tokens with proper GitHub and Quay.io tokens.
+
+You can now run the tests with:
+```
+mvn clean install
+```
