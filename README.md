@@ -86,6 +86,9 @@ It also has the following limitations
 - Dockstore server-url
 
   The Dockstore tutorial earlier would've specified the server-url alongside the token.  Unless you're running your own dockstore webservice, the Dockstore production server-url is "https://www.dockstore.org:8443" and the Dockstore staging server-url is "https://staging.dockstore.org:8443".  Note this down, it will also later be used in the Write API client properties file.
+- Quay.io integration
+
+  In order to publish to Dockstore, Quay.io must be linked to Dockstore.
 
 - Write API web service URL
 
