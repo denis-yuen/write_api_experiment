@@ -3,11 +3,17 @@ package io.swagger.server.api.impl;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
+import com.fasterxml.jackson.databind.util.JSONWrappedObject;
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import io.ga4gh.reference.api.GitHubBuilder;
 import io.ga4gh.reference.api.QuayIoBuilder;
 import io.ga4gh.reference.dao.ToolDAO;
@@ -175,6 +181,7 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         if (byId == null) {
             return Response.notModified().build();
         }
+        byId.setImageReady(getImageReady(id));
         return Response.ok().entity(byId).build();
     }
 
@@ -288,6 +295,24 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         } catch (RuntimeException e) {
             e.printStackTrace();
             return Response.serverError().entity(e.getMessage()).build();
+        }
+    }
+
+    private boolean getImageReady(String repository) {
+        Optional<String> as = quayIoBuilder.buildResults(repository);
+        if (as.isPresent()) {
+            JsonParser parser = new JsonParser();
+            JsonObject rootObj = parser.parse(as.get()).getAsJsonObject();
+            JsonArray buildsArray = rootObj.getAsJsonArray("builds");
+            JsonObject buildObj = buildsArray.get(0).getAsJsonObject();
+            String phase = buildObj.get("phase").getAsString();
+            if (phase.equals("complete")) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
         }
     }
 }
