@@ -87,7 +87,7 @@ public class Check {
                 System.out.println("Docker image is not available");
             }
         } catch (ApiException e) {
-            System.err.println(e.getMessage());
+            throw new RuntimeException("Could not get tool version.", e);
         }
     }
 }

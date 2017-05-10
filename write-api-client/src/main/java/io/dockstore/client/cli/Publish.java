@@ -112,6 +112,9 @@ class Publish {
             throw new RuntimeException("Could not get tags by path", e);
         }
         Tag first = tagsByPath.parallelStream().filter(tag -> tag.getName().equals(output.getVersion())).findFirst().orElse(null);
+        if (first==null) {
+            throw new RuntimeException("Tag not found after user refresh.  Tag is likely not available on Quay.io yet.  Please wait after it's built on Quay.io then try again.");
+        }
         first.setReference(output.getVersion());
         try {
             containertagsApi.updateTags(dockstoreTool.getId(), tagsByPath);

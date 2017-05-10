@@ -8,10 +8,7 @@ import java.util.Optional;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
-import com.fasterxml.jackson.databind.util.JSONWrappedObject;
 import com.google.common.collect.Lists;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.ga4gh.reference.api.GitHubBuilder;
@@ -181,7 +178,7 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         if (byId == null) {
             return Response.notModified().build();
         }
-        byId.setImageReady(getImageReady(id));
+        byId.setImageReady(getImageReady(id, versionId));
         return Response.ok().entity(byId).build();
     }
 
@@ -298,18 +295,16 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         }
     }
 
-    private boolean getImageReady(String repository) {
-        Optional<String> as = quayIoBuilder.buildResults(repository);
-        if (as.isPresent()) {
+    private boolean getImageReady(String repository, String version) {
+        Optional<String> repositoryDetails = quayIoBuilder.getRepository(repository);
+        if (repositoryDetails.isPresent()) {
             JsonParser parser = new JsonParser();
-            JsonObject rootObj = parser.parse(as.get()).getAsJsonObject();
-            JsonArray buildsArray = rootObj.getAsJsonArray("builds");
-            JsonObject buildObj = buildsArray.get(0).getAsJsonObject();
-            String phase = buildObj.get("phase").getAsString();
-            if (phase.equals("complete")) {
-                return true;
-            } else {
+            JsonObject rootobj = parser.parse(repositoryDetails.get()).getAsJsonObject();
+            JsonObject tagsObj = rootobj.getAsJsonObject("tags");
+            if (tagsObj.getAsJsonObject(version)==null) {
                 return false;
+            } else {
+                return true;
             }
         } else {
             return false;

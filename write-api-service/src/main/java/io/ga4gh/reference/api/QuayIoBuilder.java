@@ -108,4 +108,11 @@ public class QuayIoBuilder {
         Optional<String> responseAsString = ResourceUtilities.asString(repoUrl, token, httpClient);
         return responseAsString;
     }
+
+    public Optional<String> getRepository(String repository) {
+        final String queryURL = QUAY_URL + "repository/" + repository;
+        Optional<String> response = ResourceUtilities.asString(queryURL, token, httpClient);
+        LOG.info("QUAY GET: " + queryURL);
+        return response;
+    }
 }
