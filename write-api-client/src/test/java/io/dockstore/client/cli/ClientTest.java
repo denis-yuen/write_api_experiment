@@ -1,6 +1,7 @@
 package io.dockstore.client.cli;
 
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 
 import com.beust.jcommander.ParameterException;
 import io.dropwizard.testing.ResourceHelpers;
@@ -137,8 +138,7 @@ public class ClientTest {
         Assert.assertTrue(log.contains("Handling add"));
     }
 
-    @Test
-    public void addEverything() {
+    private void addEverything() {
         String[] argv = { "--config", configFilePath, "add", "--id", id, "--Dockerfile", dockerfilePath, "--cwl-file", descriptorPath,
                 "--cwl-secondary-file", secondaryDescriptorPath, "--version", version };
         Client.main(argv);
@@ -174,21 +174,28 @@ public class ClientTest {
         Client.main(argv);
     }
 
-    @Test
-    public void publishToolWithTool() {
+    private void publishToolWithTool() {
         String[] argv = { "--config", configFilePath, "publish", "--tool", testJsonPath };
         Client.main(argv);
         String log = systemOutRule.getLog();
         Assert.assertTrue("Expecting \"Successfully published tool\" but got " + log, log.contains("Successfully published tool"));
     }
 
-    @Ignore
-    @Test
-    public void check(){
+    private void check(){
         String[] argv = {"--config", configFilePath, "check", "--id", id, "--version", version};
         Client.main(argv);
         String log = systemOutRule.getLog();
-        Assert.assertTrue(log.contains("Handling check"));
+        Assert.assertTrue(log.contains("Tool properly registered and version is valid"));
+        Assert.assertTrue(log.contains("Docker image available"));
+    }
+
+    @Test
+    public void integrationTest() throws InterruptedException {
+        addEverything();
+        // Sleeping because publish does not work until the image is built
+        TimeUnit.MINUTES.sleep((long)5);
+        publishToolWithTool();
+        check();
     }
 
     private void checkUsage(String log) {
