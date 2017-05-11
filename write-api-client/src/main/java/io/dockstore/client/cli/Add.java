@@ -30,17 +30,11 @@ import static io.dockstore.client.cli.ConfigFileHelper.getIniConfiguration;
 class Add {
     private static final Logger LOGGER = LoggerFactory.getLogger(Add.class);
     private Properties properties;
-    private String organizationName;
-    // repo name for GitHub and Quay.io, this repo will be created and deleted
-    private String repoName;
-    // an organization for both GitHub and Quay.io where repos will be created (and deleted)
     private String config;
 
     Add(String config) {
         setConfig(config);
         properties = getIniConfiguration(getConfig());
-        organizationName = properties.getProperty("organization", "dockstore-testing");
-        repoName = properties.getProperty("repo", "test_repo3");
     }
 
     private String getConfig() {
@@ -60,16 +54,18 @@ class Add {
      * @param version             The version of the tool
      */
     @Transaction
-    void handleAdd(String dockerfile, String descriptor, String secondaryDescriptor, String version) {
-        // watch out, versions can't start with a "v"
-        if (version == null) {
-            version = "1.0";
-        }
+    void handleAdd(String dockerfile, String descriptor, String secondaryDescriptor, String version, String id) {
         LOGGER.info("Handling add...");
+        String[] idParts = id.split("/");
+        if (idParts.length != 2) {
+            throw new RuntimeException("--id parameter is invalid.  It must contain organization and repo separated by a slash");
+        }
+        String organizationName = idParts[0];
+        String repoName = idParts[1];
         ToolDockerfile toolDockerfile = createToolDockerfile(dockerfile);
         ToolDescriptor toolDescriptor = createDescriptor(descriptor);
         GAGHoptionalwriteApi api = WriteAPIServiceHelper.getGaghOptionalApi(properties);
-        Tool tool = createTool();
+        Tool tool = createTool(organizationName, repoName);
         Tool responseTool = null;
         try {
             responseTool = api.toolsPost(tool);
@@ -144,7 +140,7 @@ class Add {
         System.out.println(json);
     }
 
-    private Tool createTool() {
+    private Tool createTool(String organizationName, String repoName) {
         Tool tool = new Tool();
         tool.setId(organizationName + "/" + repoName);
         tool.setOrganization(organizationName);

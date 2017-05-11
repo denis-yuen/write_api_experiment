@@ -68,8 +68,8 @@ public class QuayIoBuilder {
             request.setDockerTags(tags);
             buildApi.requestRepoBuild(repo, request);
             return true;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (ApiException e) {
+            throw new RuntimeException("Could not trigger Quay.io build.  Check your Quay.io token.");
         }
     }
 

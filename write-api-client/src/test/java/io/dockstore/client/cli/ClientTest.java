@@ -8,7 +8,6 @@ import io.dropwizard.testing.junit.DropwizardAppRule;
 import io.ga4gh.reference.ServerApplication;
 import io.ga4gh.reference.ServerConfiguration;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -21,6 +20,9 @@ import org.junit.contrib.java.lang.system.SystemOutRule;
  */
 public class ClientTest {
 
+    @ClassRule
+    public static final DropwizardAppRule<ServerConfiguration> RULE = new DropwizardAppRule<>(ServerApplication.class,
+            ResourceHelpers.resourceFilePath("ref.yml"));
     private static final File descriptor = new File("src/test/resources/Dockstore.cwl");
     private static final String descriptorPath = descriptor.getAbsolutePath();
     private static final File dockerfile = new File("src/test/resources/Dockerfile");
@@ -31,11 +33,7 @@ public class ClientTest {
     private static final String configFilePath = configFile.getAbsolutePath();
     private static final File secondaryDescriptor = new File("src/test/resources/Dockstore.wdl");
     private static final String secondaryDescriptorPath = secondaryDescriptor.getAbsolutePath();
-
-    @ClassRule
-    public static final DropwizardAppRule<ServerConfiguration> RULE = new DropwizardAppRule<>(
-            ServerApplication.class, ResourceHelpers.resourceFilePath("ref.yml"));
-
+    private static final String id = "dockstore-testing/travis-test";
     @Rule
     public final SystemOutRule systemOutRule = new SystemOutRule().enableLog();
 
@@ -98,7 +96,7 @@ public class ClientTest {
     @Ignore("Ignoring until we can delete repos.")
     @Test
     public void addDockerfileWithDockerfileAndDescriptorWithDescriptor() {
-        String[] argv = { "add", "--Dockerfile", dockerfilePath, "--cwl-file", descriptorPath };
+        String[] argv = { "add", "--id", id, "--Dockerfile", dockerfilePath, "--cwl-file", descriptorPath };
         Client.main(argv);
         String log = systemOutRule.getLog();
         Assert.assertTrue(log.contains("Handling add"));
@@ -120,8 +118,8 @@ public class ClientTest {
     @Ignore("Ignoring until we can delete repos.")
     @Test
     public void addDockerfileWithDockerfileAndDescriptorWithDescriptorAndSecondaryDescriptorWithSecondaryDescriptor() {
-        String[] argv = { "--config", configFilePath, "add", "--Dockerfile", dockerfilePath, "--cwl-file", descriptorPath, "--cwl-secondary-file",
-                secondaryDescriptorPath };
+        String[] argv = { "--config", configFilePath, "add", "--id", id, "--Dockerfile", dockerfilePath, "--cwl-file", descriptorPath,
+                "--cwl-secondary-file", secondaryDescriptorPath };
         Client.main(argv);
         String log = systemOutRule.getLog();
         Assert.assertTrue(log.contains("Handling add"));
@@ -131,18 +129,17 @@ public class ClientTest {
     @Ignore("Ignoring until we can delete repos.")
     @Test
     public void addDockerfileWithDockerfileAndDescriptorWithDescriptorAndVersionWithVersion() {
-        String[] argv = { "--config", configFilePath, "add", "--Dockerfile", dockerfilePath, "--cwl-file", descriptorPath, "--version",
-                "version" };
+        String[] argv = { "--config", configFilePath, "add", "--id", id, "--Dockerfile", dockerfilePath, "--cwl-file", descriptorPath,
+                "--version", "version" };
         Client.main(argv);
         String log = systemOutRule.getLog();
         Assert.assertTrue(log.contains("Handling add"));
     }
 
-
     @Test
     public void addEverything() {
-        String[] argv = { "--config", configFilePath, "add", "--Dockerfile", dockerfilePath, "--cwl-file", descriptorPath, "--cwl-secondary-file",
-                secondaryDescriptorPath, "--version", "3.0" };
+        String[] argv = { "--config", configFilePath, "add", "--id", id, "--Dockerfile", dockerfilePath, "--cwl-file", descriptorPath,
+                "--cwl-secondary-file", secondaryDescriptorPath, "--version", "3.0" };
         Client.main(argv);
         String log = systemOutRule.getLog();
         Assert.assertTrue(log.contains("Handling add"));

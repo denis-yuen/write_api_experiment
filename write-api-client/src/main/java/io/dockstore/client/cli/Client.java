@@ -80,7 +80,7 @@ public final class Client {
                     jc.usage("add");
                 } else {
                     Add add = new Add(commandMain.config);
-                    add.handleAdd(commandAdd.dockerfile, commandAdd.descriptor, commandAdd.secondaryDescriptor, commandAdd.version);
+                    add.handleAdd(commandAdd.dockerfile, commandAdd.descriptor, commandAdd.secondaryDescriptor, commandAdd.version, commandAdd.id);
                 }
                 break;
             case "publish":
@@ -111,7 +111,9 @@ public final class Client {
         @Parameter(names = "--cwl-secondary-file", description = "The optional secondary cwl descriptor to upload")
         private String secondaryDescriptor;
         @Parameter(names = "--version", description = "The version of the tool to upload to", required = true)
-        private String version;
+        private String version = "1.0";
+        @Parameter(names = "--id", description = "The organization and repo name (e.g. ga4gh/dockstore).", required = true)
+        private String id;
         @Parameter(names = "--help", description = "Prints help for the add command", help = true)
         private boolean help = false;
     }
@@ -124,6 +126,19 @@ public final class Client {
         @Parameter(names = "--tool", description = "The json output from the 'add' command.", required = true)
         private String tool;
         @Parameter(names = "--help", description = "Prints help for the publish command.", help = true)
+        private boolean help = false;
+    }
+
+    /**
+     * The check command
+     */
+    @Parameters(separators = "=", commandDescription = "Checks if the tool is properly registered and Docker image is available.")
+    private static class CommandCheck {
+        @Parameter(names = "--id", description = "The organization and repo name (e.g. ga4gh/dockstore).", required = true)
+        private String id;
+        @Parameter(names = "--version", description = "The version of the tool to upload to")
+        private String version;
+        @Parameter(names = "--help", description = "Prints help for the check command.", help = true)
         private boolean help = false;
     }
 
