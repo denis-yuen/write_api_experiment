@@ -2,9 +2,9 @@
 
 # Write API Service and Client
 
-This is an experimental service aimed at two tasks
+This is a service aimed at two tasks
 1. Providing a concrete reference implementation of a proposed GA4GH [Write API](https://github.com/ga4gh/tool-registry-schemas/blob/feature/write_api_presentation/src/main/resources/swagger/ga4gh-tool-discovery.yaml).
-2. Providing a utility for developers to convert plain CWL/WDL files and Dockerfiles into [GitHub](https://github.com) repos storing those plain CWL/WDL files and [Quay.io](https://quay.io) repos storing Docker images built from those Dockerfiles. This can be used by those converting tools described in other formats into "Dockstore-friendly" tools that can be quickly registered and published in Dockstore by using the Write API Client's publish command or programmatically via the Dockstore API.
+2. Providing a utility for developers to convert plain CWL/WDL files and Dockerfiles into [GitHub](https://github.com) repos storing those plain CWL/WDL files and [Quay.io](https://quay.io) repos storing Docker images built from those Dockerfiles. This can be used by those converting tools described in other formats into "Dockstore-friendly" tools that can be quickly registered and published in Dockstore by using the Write API Client's publish command or programmatically via the Dockstore API.  It is an alternative to using a GUI to register tools on Dockstore.
 
 ## End Users
 This is intended to be used by:
@@ -13,7 +13,7 @@ This is intended to be used by:
   Developers that have access to a large number of tools in some different format and wants to migrate them all programmatically to Dockstore with minimal effort.
 - Tool Developers
 
-  Developers of a single tool that wants a quick and simple way of creating one without spending a large amount of time to post a single Dockerfile and CWL to implement a single tool.
+  Developers of a single tool that wants a quick and simple way of creating one without spending a large amount of time to post a single Dockerfile and CWL descriptor to implement a single tool.
 
 ## Write API Components
 
@@ -27,9 +27,9 @@ This contains two parts:
 
   Learn how to create tokens on GitHub [here](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/).  You will need the scope "repo".
 
-- A GitHub organization
+- GitHub organization(s)
 
-  Your GitHub token must have access to an existing GitHub organization.  The Write API web service currently does not create GitHub organizations.  The name of this organization must match the Quay.io organization.
+  Your GitHub token must have access to an existing GitHub organization.  The Write API web service currently does not create GitHub organizations.  The name of this organization must match the Quay.io organization.  This organization will contain the repository that will be created.
 - [Quay.io token](https://quay.io)
 
   Learn how to create a token on Quay.io for your organization [here](https://docs.quay.io/api/) under the heading "Generating a Token (for internal application use)". You will need to provide these permissions:
@@ -37,11 +37,10 @@ This contains two parts:
   - Create Repositories
   - View all visible repositories
   - Read/Write to any accessible repository
-  - Administer User
 
-- A Quay.io organization
+- Quay.io organization(s)
 
-  Your Quay.io token msut have access to an existing Quay.io organization.  The Write API web service currently does not create Quay.io organiztaions.  The name of this organization must match the GitHub organization.
+  Your Quay.io token must have access to an existing Quay.io organization.  The Write API web service currently does not create Quay.io organiztaions.  The name of this organization must match the GitHub organization.
 
 ## Web Service Usage
 
@@ -62,7 +61,7 @@ java -jar target/write-api-service-*.jar server example.yml
 ```
 The example.yml shown previously uses port 8082 by default, this can be changed.  Note this port number, it will later be used for the Write API Client properties file.
 
-After running the webservice, you can check out the web service endpoints through swagger.  By default, it is available at http://localhost:8082/static/swagger-ui/index.html.  Then http://localhost:8082/api/ga4gh/v1/swagger.json will need to be entered in the first text field (top left).
+After running the webservice, you can check out the web service endpoints through swagger.  By default, it is available at http://localhost:8082/static/swagger-ui/index.html.
 
 The basic workflow is that GitHub repos are created when posting a new tool. When files are posted or put to a version of a tool, we will create or delete and re-create a GitHub release/branch/tag with a matching name. When Dockerfiles are added, the tool will be created and built as a Quay.io repo. After adding both Dockerfiles and descriptors, you basically have a tool that is ready to be quickly registered and published under a Dockstore 1.2 web service. Go to Dockstore, do a refresh, and then hit quick register on the repos that you wish to publish. You can also do this programmatically through the write api client.
 
@@ -73,8 +72,8 @@ This service is aimed at developers familiar with Dockstore (and have at least g
 It also has the following limitations
 
 1. The service lacks a GUI and is purely a tool provided for developers doing conversion
-2. A full implementation awaits testing
-3. It is not possible to create build triggers in Quay.io programmatically at this time. So new refresh code in Dockstore 1.2 is required.
+2. It is not possible to create build triggers in Quay.io programmatically at this time. So new refresh code in Dockstore 1.2 is required.
+3. The service and client only handles local files.  It currently does not handle file provisioning.
 
 ## Client Prerequisites
 - Write API web service and all its prerequisites
@@ -88,7 +87,7 @@ It also has the following limitations
   The Dockstore tutorial earlier would've specified the server-url alongside the token.  Unless you're running your own dockstore webservice, the Dockstore production server-url is "https://www.dockstore.org:8443" and the Dockstore staging server-url is "https://staging.dockstore.org:8443".  Note this down, it will also later be used in the Write API client properties file.
 - Quay.io integration
 
-  In order to publish to Dockstore, Quay.io must be linked to Dockstore.
+  In order to publish to Dockstore, Quay.io must be linked to Dockstore.  See [Dockstore](https://dockstore.org/docs/getting-started-with-dockstore) on how to link your Quay.io account to Dockstore.
 
 - Write API web service URL
 
@@ -102,7 +101,7 @@ token=imamafakedockstoretoken
 server-url=https://www.dockstore.org:8443
 write-api-url=http://localhost:8082/api/ga4gh/v1
 ```
-These three properties refers to the 2nd, 3rd, and 4th prerequisites mentioned in the previous section.
+These three properties refers to the prerequisites mentioned in the previous section.
 By default, the client will look for the properties file at the following location:
 ```
 ~/.dockstore/write.api.config.properties
@@ -154,7 +153,7 @@ There are two main commands that will be used: the Add command and then the Publ
 
 The Add command has 3 required parameters:
 - --cwl-file (the absolute path to the cwl descriptor that you want to upload to GitHub)
-- --dockerfile (the Dockerfile that you want to upload to GitHub and build on Quay.io)
+- --Dockerfile (the Dockerfile that you want to upload to GitHub and build on Quay.io)
 - --id (the GitHub organization and repository to upload the Dockerfile and CWL descriptor to which is also the same name as the Quay.io repository)
 
 This command interacts with the write API web service to perform several operations:
@@ -232,3 +231,4 @@ You can now run the tests with:
 ```
 mvn clean install
 ```
+Afterwards, you should have a GitHub and Quay.io repository at the organization/namespace specified previously.  The GitHub repo will have a Dockerfile, and CWL descriptor, and secondary CWL descriptor and a built/building image on the new Quay.io repository.  

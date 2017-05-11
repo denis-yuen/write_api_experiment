@@ -110,7 +110,7 @@ public final class Client {
         private String descriptor;
         @Parameter(names = "--cwl-secondary-file", description = "The optional secondary cwl descriptor to upload")
         private String secondaryDescriptor;
-        @Parameter(names = "--version", description = "The version of the tool to upload to")
+        @Parameter(names = "--version", description = "The version of the tool to upload to", required = true)
         private String version;
         @Parameter(names = "--help", description = "Prints help for the add command", help = true)
         private boolean help = false;
