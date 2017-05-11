@@ -63,7 +63,9 @@ class Add {
         String organizationName = idParts[0];
         String repoName = idParts[1];
         ToolDockerfile toolDockerfile = createToolDockerfile(dockerfile);
+        toolDockerfile.setUrl("Dockerfile");
         ToolDescriptor toolDescriptor = createDescriptor(descriptor);
+        toolDescriptor.setUrl("Dockstore.cwl");
         GAGHoptionalwriteApi api = WriteAPIServiceHelper.getGaghOptionalApi(properties);
         Tool tool = createTool(organizationName, repoName);
         Tool responseTool = null;
@@ -166,6 +168,8 @@ class Add {
         if (filePath == null) {
             throw new RuntimeException("Could not get file path.");
         }
+
+
         String fileName = filePath.toString();
         try {
             String content = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);

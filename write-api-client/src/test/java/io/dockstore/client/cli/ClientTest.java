@@ -24,15 +24,15 @@ public class ClientTest {
     @ClassRule
     public static final DropwizardAppRule<ServerConfiguration> RULE = new DropwizardAppRule<>(ServerApplication.class,
             ResourceHelpers.resourceFilePath("ref.yml"));
-    private static final File descriptor = new File("src/test/resources/Dockstore.cwl");
+    private static final File descriptor = new File("src/test/resources/imports.cwl");
     private static final String descriptorPath = descriptor.getAbsolutePath();
-    private static final File dockerfile = new File("src/test/resources/Dockerfile");
+    private static final File dockerfile = new File("src/test/resources/Dockerfile2");
     private static final String dockerfilePath = dockerfile.getAbsolutePath();
     private static final File testJson = new File("src/test/resources/Test.json");
     private static final String testJsonPath = testJson.getAbsolutePath();
     private static final File configFile = new File("src/test/resources/write.api.config.properties");
     private static final String configFilePath = configFile.getAbsolutePath();
-    private static final File secondaryDescriptor = new File("src/test/resources/Dockstore.wdl");
+    private static final File secondaryDescriptor = new File("src/test/resources/envvar-global.yml");
     private static final String secondaryDescriptorPath = secondaryDescriptor.getAbsolutePath();
     private static final String id = "dockstore-testing/travis-test";
     private static final String version = "3.0";
@@ -181,8 +181,8 @@ public class ClientTest {
         Assert.assertTrue("Expecting \"Successfully published tool\" but got " + log, log.contains("Successfully published tool"));
     }
 
-    private void check(){
-        String[] argv = {"--config", configFilePath, "check", "--id", id, "--version", version};
+    private void check() {
+        String[] argv = { "--config", configFilePath, "check", "--id", id, "--version", version };
         Client.main(argv);
         String log = systemOutRule.getLog();
         Assert.assertTrue(log.contains("Tool properly registered and version is valid"));
