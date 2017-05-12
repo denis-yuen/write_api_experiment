@@ -13,7 +13,7 @@ This is intended to be used by:
   Developers that have access to a large number of tools in some different format and wants to migrate them all programmatically to Dockstore with minimal effort.
 - Tool Developers
 
-  Developers of a single tool that wants a quick and simple way of creating one without spending a large amount of time to post a single Dockerfile and CWL descriptor to implement a single tool.
+  Developers of tools that wants a quick and simple way of creating one without spending a large amount of time to post a single Dockerfile and CWL descriptor to implement each tool.
 
 ## Write API Components
 
@@ -29,10 +29,10 @@ This contains two parts:
 
 - GitHub organization(s)
 
-  Your GitHub token must have access to an existing GitHub organization.  The Write API web service currently does not create GitHub organizations.  The name of this organization must match the Quay.io organization.  This organization will contain the repository that will be created.
+  Your GitHub token must have access to at least a single existing GitHub organization.  The organization can be changed as long as the the GitHub token still has access to it.  The Write API web service currently does not create GitHub organizations.  The name of this organization must match the Quay.io organization.  This organization will contain the repository that will be created.
 - [Quay.io token](https://quay.io)
 
-  Learn how to create a token on Quay.io for your organization [here](https://docs.quay.io/api/) under the heading "Generating a Token (for internal application use)". You will need to provide these permissions:
+  Learn how to create a token on Quay.io for your organizations [here](https://docs.quay.io/api/) under the heading "Generating a Token (for internal application use)". You will need to provide these permissions:
 
   - Create Repositories
   - View all visible repositories
@@ -40,7 +40,7 @@ This contains two parts:
 
 - Quay.io organization(s)
 
-  Your Quay.io token must have access to an existing Quay.io organization.  The Write API web service currently does not create Quay.io organiztaions.  The name of this organization must match the GitHub organization.
+  Your Quay.io token must have access to existing Quay.io organization.  The Write API web service currently does not create Quay.io organiztaions.  Currently, a new token must be made for each organization.  The name of this organization must match the GitHub organization.
 
 ## Web Service Usage
 
