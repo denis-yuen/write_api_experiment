@@ -40,16 +40,6 @@ public class QuayIoBuilder {
         this.token = token;
     }
 
-    public static void main(String[] args) {
-        QuayIoBuilder builder = new QuayIoBuilder(args[0]);
-        if (!builder.repoExists("denis_yuen", "test")) {
-            builder.createRepo("denis_yuen", "test", "test_repo");
-        }
-        if (!builder.triggerBuild("denis-yuen", "denis_yuen", "test_repo", "test", "2017.03.08", true)) {
-            throw new RuntimeException("Could not trigger build, please check your credentials");
-        }
-    }
-
     public boolean triggerBuild(String githubOrg, String quayOrg, String gitRepo, String quayRepo, String release, boolean choice) {
         try {
             BuildApi buildApi = new BuildApi(apiClient);
@@ -76,7 +66,6 @@ public class QuayIoBuilder {
     public String getSubdirectoryWithDockerfile(String name, String tag) {
         return name + "-" + tag + "/" + "Dockerfile";
     }
-
 
     public String getSubdirectoryWithoutDockerfile(String name, String tag) {
         return name + "-" + tag + "/";
@@ -114,9 +103,16 @@ public class QuayIoBuilder {
         return repoUrl;
     }
 
-    public Optional<String> buildResults(String namespace, String name) {
-        final String repoUrl = QUAY_URL + "repository/" + namespace + "/" + name + "/build?limit=1";
+    public Optional<String> buildResults(String repository) {
+        final String repoUrl = QUAY_URL + "repository/" + repository + "/build?limit=1";
         Optional<String> responseAsString = ResourceUtilities.asString(repoUrl, token, httpClient);
         return responseAsString;
+    }
+
+    public Optional<String> getRepository(String repository) {
+        final String queryURL = QUAY_URL + "repository/" + repository;
+        Optional<String> response = ResourceUtilities.asString(queryURL, token, httpClient);
+        LOG.info("QUAY GET: " + queryURL);
+        return response;
     }
 }

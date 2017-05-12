@@ -191,9 +191,9 @@
                             </manifest>
                         </archive>
                         <!-- exclude logback.xml -->
-                        <excludes>
-                            <exclude>**/logback.xml</exclude>
-                        </excludes>
+                        <!--<excludes>-->
+                            <!--<exclude>**/logback.xml</exclude>-->
+                        <!--</excludes>-->
                     </configuration>
                 </plugin>
                 <plugin>

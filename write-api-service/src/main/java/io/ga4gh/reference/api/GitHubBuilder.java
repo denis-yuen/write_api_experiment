@@ -275,7 +275,7 @@ public class GitHubBuilder {
             String uri = "/repos/" + organization + "/" + repo + "/releases";
             LOG.info("GIT POST: " + uri);
             wait(organization, repo);
-            Object post2 = githubClient.post(uri, releaseMap, Map.class);
+            githubClient.post(uri, releaseMap, Map.class);
         } catch (RequestException e) {
             LOG.info("Git tag already exists");
         } catch (IOException e1) {

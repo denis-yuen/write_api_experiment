@@ -88,7 +88,7 @@ class Publish {
             Long userId = user.getId();
             usersApi.refresh(userId);
         } catch (ApiException e) {
-            LOGGER.info(e.getMessage());
+            throw new RuntimeException("Could not refresh user", e);
         }
         Output output = getJson(tool);
         String gitURL = output.getGithubURL();
@@ -98,26 +98,42 @@ class Publish {
         String namespace = bits[bits.length - 2];
 
         DockstoreTool dockstoreTool;
+
         try {
             dockstoreTool = containersApi.getContainerByToolPath("quay.io" + "/" + namespace + "/" + name);
-            ContainertagsApi containertagsApi = new ContainertagsApi(defaultApiClient);
-            List<Tag> tagsByPath = containertagsApi.getTagsByPath(dockstoreTool.getId());
-            Tag first = tagsByPath.parallelStream().filter(tag -> tag.getName().equals(output.getVersion())).findFirst().orElse(null);
-            first.setReference(output.getVersion());
-            containertagsApi.updateTags(dockstoreTool.getId(), tagsByPath);
-            containersApi.refresh(dockstoreTool.getId());
         } catch (ApiException e) {
-            LOGGER.info(e.getMessage());
-            return;
+            throw new RuntimeException("Could not get tools by tool path", e);
+        }
+        ContainertagsApi containertagsApi = new ContainertagsApi(defaultApiClient);
+        List<Tag> tagsByPath;
+        try {
+            tagsByPath = containertagsApi.getTagsByPath(dockstoreTool.getId());
+        } catch (ApiException e) {
+            throw new RuntimeException("Could not get tags by path", e);
+        }
+        Tag first = tagsByPath.parallelStream().filter(tag -> tag.getName().equals(output.getVersion())).findFirst().orElse(null);
+        if (first == null) {
+            throw new RuntimeException(
+                    "Tag not found after user refresh.  Tag is likely not available on Quay.io yet.  Please wait after it's built on Quay.io then try again.");
+        }
+        first.setReference(output.getVersion());
+        try {
+            containertagsApi.updateTags(dockstoreTool.getId(), tagsByPath);
+        } catch (ApiException e) {
+            throw new RuntimeException("Could not update tags", e);
         }
         try {
-            PublishRequest pub = new PublishRequest();
-            pub.setPublish(true);
+            containersApi.refresh(dockstoreTool.getId());
+        } catch (ApiException e) {
+            throw new RuntimeException("Could not refresh tool", e);
+        }
+        PublishRequest pub = new PublishRequest();
+        pub.setPublish(true);
+        try {
             containersApi.publish(dockstoreTool.getId(), pub);
         } catch (ApiException e) {
-            LOGGER.info(e.getMessage());
-            return;
+            throw new RuntimeException("Could not publish tool", e);
         }
-        LOGGER.info("Successfully published tool.");
+        System.out.println("Successfully published tool.");
     }
 }

@@ -3,11 +3,14 @@ package io.swagger.server.api.impl;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
 import com.google.common.collect.Lists;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import io.ga4gh.reference.api.GitHubBuilder;
 import io.ga4gh.reference.api.QuayIoBuilder;
 import io.ga4gh.reference.dao.ToolDAO;
@@ -175,6 +178,7 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         if (byId == null) {
             return Response.notModified().build();
         }
+        byId.setImageReady(getImageReady(id, versionId));
         return Response.ok().entity(byId).build();
     }
 
@@ -288,6 +292,22 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         } catch (RuntimeException e) {
             e.printStackTrace();
             return Response.serverError().entity(e.getMessage()).build();
+        }
+    }
+
+    private boolean getImageReady(String repository, String version) {
+        Optional<String> repositoryDetails = quayIoBuilder.getRepository(repository);
+        if (repositoryDetails.isPresent()) {
+            JsonParser parser = new JsonParser();
+            JsonObject rootobj = parser.parse(repositoryDetails.get()).getAsJsonObject();
+            JsonObject tagsObj = rootobj.getAsJsonObject("tags");
+            if (tagsObj.getAsJsonObject(version)==null) {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
         }
     }
 }

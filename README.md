@@ -74,6 +74,8 @@ It also has the following limitations
 1. The service lacks a GUI and is purely a tool provided for developers doing conversion
 2. It is not possible to create build triggers in Quay.io programmatically at this time. So new refresh code in Dockstore 1.2 is required.
 3. The service and client only handles local files.  It currently does not handle file provisioning.
+4. The Dockerfile uploaded will be renamed to "Dockerfile" on GitHub.  This is due to a Quay.io limitation, it will only build the "Dockerfile" in a GitHub archive.  
+5. The CWL descriptor uploaded will be renamed to "Dockstore.cwl" on GitHub.  This is due to the Write-API-Client Publish command and Dockstore limitation.  The input json for the Publish command does not contain any information regarding the descriptor name.  The Dockstore automatic refresh code will only try to import "Dockstore.cwl".
 
 ## Client Prerequisites
 - Write API web service and all its prerequisites
@@ -152,7 +154,7 @@ There are two main commands that will be used: the Add command and then the Publ
 ### Add command
 
 The Add command has 3 required parameters:
-- --cwl-file (the absolute path to the cwl descriptor that you want to upload to GitHub)
+- --cwl-file (the local path to the cwl descriptor that you want to upload to GitHub)
 - --Dockerfile (the Dockerfile that you want to upload to GitHub and build on Quay.io)
 - --id (the GitHub organization and repository to upload the Dockerfile and CWL descriptor to which is also the same name as the Quay.io repository)
 
@@ -189,7 +191,7 @@ After running the Add command, you should now have a GitHub repository in your o
 ### Publish command
 
 The Publish Command has one required parameter:
-- --tool (the absolute path to the file containing the output from the add command) which contains something like this:
+- --tool (the local path to the file containing the output from the add command) which contains something like this:
 ```
 {
   "githubURL": "https://github.com/dockstore-testing/travis-test",

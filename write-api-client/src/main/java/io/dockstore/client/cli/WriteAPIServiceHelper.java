@@ -3,6 +3,7 @@ package io.dockstore.client.cli;
 import java.util.Properties;
 
 import io.swagger.client.write.ApiClient;
+import io.swagger.client.write.api.GAGHApi;
 import io.swagger.client.write.api.GAGHoptionalwriteApi;
 
 /**
@@ -24,5 +25,12 @@ final class WriteAPIServiceHelper {
         ApiClient client = new ApiClient();
         client.setBasePath(url);
         return new GAGHoptionalwriteApi(client);
+    }
+
+    static GAGHApi getGAGHApi(Properties properties) {
+        String url = properties.getProperty("write-api-url", "http://localhost:8082/api/ga4gh/v1");
+        ApiClient client = new ApiClient();
+        client.setBasePath(url);
+        return new GAGHApi(client);
     }
 }

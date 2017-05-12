@@ -46,7 +46,7 @@ public class QuayTriggerBuildTest {
             } catch (InterruptedException e) {
                 LOGGER.error("Could not sleep");
             }
-            Optional<String> s = quayIoBuilder.buildResults(NAMESPACE, NAME);
+            Optional<String> s = quayIoBuilder.buildResults(NAMESPACE + "/" + NAME);
             Gson gson = new Gson();
             MyJAXBean myJAXBean = gson.fromJson(s.get(), MyJAXBean.class);
             phase = myJAXBean.getBuilds().get(0).getPhase();
@@ -69,7 +69,7 @@ public class QuayTriggerBuildTest {
             } catch (InterruptedException e) {
                 LOGGER.error("Could not sleep");
             }
-            Optional<String> s = quayIoBuilder.buildResults(NAMESPACE, NAME);
+            Optional<String> s = quayIoBuilder.buildResults(NAMESPACE + "/" + NAME);
             Gson gson = new Gson();
             MyJAXBean myJAXBean = gson.fromJson(s.get(), MyJAXBean.class);
             phase = myJAXBean.getBuilds().get(0).getPhase();
