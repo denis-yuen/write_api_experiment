@@ -72,7 +72,7 @@ This service is aimed at developers familiar with Dockstore (and have at least g
 It also has the following limitations
 
 1. The service lacks a GUI and is purely a tool provided for developers doing conversion
-2. It is not possible to create build triggers in Quay.io programmatically at this time. So new refresh code in Dockstore 1.2 is required.
+2. It is not possible to create build triggers in Quay.io programmatically at this time. So new refresh code in Dockstore 1.2 was added to detect metadata added to quay.io repos.
 3. The service and client only handles local files.  It currently does not handle file provisioning.
 4. The Dockerfile uploaded will be renamed to "Dockerfile" on GitHub.  This is due to a Quay.io limitation, it will only build the "Dockerfile" in a GitHub archive.  
 5. The CWL descriptor uploaded will be renamed to "Dockstore.cwl" on GitHub.  This is due to the Write-API-Client Publish command and Dockstore limitation.  The input json for the Publish command does not contain any information regarding the descriptor name.  The Dockstore automatic refresh code will only try to import "Dockstore.cwl".
