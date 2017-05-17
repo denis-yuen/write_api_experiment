@@ -193,7 +193,17 @@ public class ClientTest {
     public void integrationTest() throws InterruptedException {
         addEverything();
         // Sleeping because publish does not work until the image is built
-        TimeUnit.MINUTES.sleep((long)5);
+        System.out.println("Sleeping for 5 minutes while Quay.io is building the image");
+        TimeUnit.MINUTES.sleep((long)1);
+        System.out.println("Sleeping for 4 more minutes while Quay.io is building the image");
+        TimeUnit.MINUTES.sleep((long)1);
+        System.out.println("Sleeping for 3 more minutes while Quay.io is building the image");
+        TimeUnit.MINUTES.sleep((long)1);
+        System.out.println("Sleeping for 2 more minutes while Quay.io is building the image");
+        TimeUnit.MINUTES.sleep((long)1);
+        System.out.println("Sleeping for 1 more minute while Quay.io is building the image");
+        TimeUnit.MINUTES.sleep((long)1);
+        System.out.println("Done sleeping, attempting to publish tool");
         publishToolWithTool();
         check();
     }
