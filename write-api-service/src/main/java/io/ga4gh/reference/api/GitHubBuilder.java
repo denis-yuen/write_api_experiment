@@ -245,7 +245,7 @@ public class GitHubBuilder {
         if (latestRepositoryCommit == null) {
             throw new RuntimeException("There is no commit.");
         }
-        LOG.info("The SHA1 of the tag is: " + latestRepositoryCommit.getSha());
+        LOG.debug("The SHA1 of the tag is: " + latestRepositoryCommit.getSha());
         try {
             // create branch if needed
             Map<String, Object> branchMap = new HashMap<>();
