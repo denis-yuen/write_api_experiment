@@ -1,4 +1,4 @@
-![Build Status](https://travis-ci.org/dockstore/write_api_service.svg?branch=develop)
+[![Build Status](https://travis-ci.org/dockstore/write_api_service.svg?branch=develop)](https://travis-ci.org/dockstore/write_api_service)
 
 # Write API Service and Client
 
