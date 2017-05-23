@@ -161,6 +161,12 @@ public class GitHubBuilder {
         wait(organization, repo);
         try {
             repository = service.getRepository(organization, repo);
+
+            // Apparently there's a new validation in check.
+            // Will throw runtime error if it's already the default branch  .
+            if (repository.getDefaultBranch().equals(branchName)) {
+                return true;
+            }
             repository.setDefaultBranch(branchName);
             service.editRepository(repository);
         } catch (IOException e) {
