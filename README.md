@@ -186,7 +186,22 @@ You can pipe this command to an output file like "> test.json" and you can then 
 
 #### Result:
 
-After running the Add command, you should now have a GitHub repository in your organization that contains a new branch/tag/release containing a Dockerfile and CWL descriptor.  In addition, there would be a Quay.io repository currently building the Dockerfile with version tag.  You also have a JSON Object in stdout containing information needed for the Publish command.
+After running the Add command, you should now have a GitHub repository in your organization that contains a new branch/tag/release containing a Dockerfile and CWL descriptor.  In addition, there would be a Quay.io repository currently building the Dockerfile with version tag.  
+
+The Quay.io repositories created will contain metadata like:
+
+```
+GA4GH auto-managed repo
+
+
+This is an example repository.
+
+----------  
+[GA4GH-generated-do-not-edit]: <> ({"repo":"review_repo","namespace":"dockstore-testing"})
+```
+
+
+You also have a JSON Object in stdout containing information needed for the Publish command.
 
 ### Publish command
 
