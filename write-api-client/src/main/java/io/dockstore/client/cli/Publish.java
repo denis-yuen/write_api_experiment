@@ -80,9 +80,10 @@ class Publish {
         defaultApiClient = Configuration.getDefaultApiClient();
         defaultApiClient.addDefaultHeader("Authorization", "Bearer " + token);
         defaultApiClient.setBasePath(serverUrl);
-
         ContainersApi containersApi = new ContainersApi(defaultApiClient);
         UsersApi usersApi = new UsersApi(defaultApiClient);
+
+        System.out.println("Refreshing user...");
         try {
             User user = usersApi.getUser();
             Long userId = user.getId();
@@ -90,6 +91,8 @@ class Publish {
         } catch (ApiException e) {
             throw new RuntimeException("Could not refresh user", e);
         }
+        System.out.println("Refreshed user");
+
         Output output = getJson(tool);
         String gitURL = output.getGithubURL();
 
@@ -122,11 +125,13 @@ class Publish {
         } catch (ApiException e) {
             throw new RuntimeException("Could not update tags", e);
         }
+        System.out.println("Refreshing tool...");
         try {
             containersApi.refresh(dockstoreTool.getId());
         } catch (ApiException e) {
             throw new RuntimeException("Could not refresh tool", e);
         }
+        System.out.println("Refreshed tool");
         PublishRequest pub = new PublishRequest();
         pub.setPublish(true);
         try {
