@@ -147,7 +147,7 @@ public final class Client {
         @Parameter(names = "--id", description = "The organization and repo name (e.g. ga4gh/dockstore).", required = true)
         private String id;
         @Parameter(names = "--version", description = "The version of the tool to upload to")
-        private String version;
+        private String version = "1.0";
         @Parameter(names = "--help", description = "Prints help for the check command.", help = true)
         private boolean help = false;
     }
