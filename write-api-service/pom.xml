@@ -30,7 +30,7 @@
 
     <name>write-api-service</name>
     <description>tool-registry-reference</description>
-    <url>https://github.com/ga4gh/dockstore-support</url>
+    <url>https://github.com/dockstore/write_api_service</url>
 
     <prerequisites>
         <maven>3.2.3</maven>
