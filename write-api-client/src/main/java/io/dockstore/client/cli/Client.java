@@ -120,7 +120,7 @@ public final class Client {
         private String descriptor;
         @Parameter(names = "--cwl-secondary-file", description = "The optional secondary CWL descriptor to upload.")
         private String secondaryDescriptor;
-        @Parameter(names = "--version", description = "The version of the tool to upload to.", required = true)
+        @Parameter(names = "--version", description = "The version of the tool to upload to.")
         private String version = "1.0";
         @Parameter(names = "--id", description = "The organization and repository name (e.g. ga4gh/dockstore).", required = true)
         private String id;
