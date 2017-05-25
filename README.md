@@ -15,12 +15,38 @@ This is intended to be used by:
 
   Developers of tools that wants a quick and simple way of creating one without spending a large amount of time to post a single Dockerfile and CWL descriptor to implement each tool.
 
+
 ## Write API Components
 
 This contains two parts:
 - The Write API web service that handles creation of GitHub and Quay.io repositories
 - The Write API client that interacts with the Write API web service to create GitHub and Quay.io repositories and can also handle publishing of tools to Dockstore.
 
+## Building the Write API jars
+
+The README will assume you're building the jars.  You can build the jars from source using:
+
+```
+git clone https://github.com/dockstore/write_api_service.git
+cd write_api_service
+mvn clean install -DskipTests
+```
+
+The built jars will be available as:
+- `write-api-service/target/write-api-service*.jar`
+- `write-api-client/target/write-api-client*shaded.jar`
+
+Note that the client one is a shaded jar.
+
+## Downloading the Write API jars
+
+Additionally, you can download the Write API jars using the following:
+```
+wget https://artifacts.oicr.on.ca/artifactory/collab-release/io/dockstore/write-api-client/1.0.2/write-api-client-1.0.2-shaded.jar
+wget https://artifacts.oicr.on.ca/artifactory/collab-release/io/dockstore/write-api-service/1.0.2/write-api-service-1.0.2.jar
+```
+
+Note that the client one is a shaded jar.
 
 ## Web Service Prerequisites
 - [GitHub token](https://github.com)
@@ -30,7 +56,12 @@ This contains two parts:
 - GitHub organization(s)
 
   Your GitHub token must have access to at least a single existing GitHub organization.  The organization can be changed as long as the the GitHub token still has access to it.  The Write API web service currently does not create GitHub organizations.  The name of this organization must match the Quay.io organization.  This organization will contain the repository that will be created.
-- [Quay.io token](https://quay.io)
+
+- [Quay.io organization and Quay.io token](https://quay.io)
+
+  You will need an existing Quay.io organization.  The Write API currently does not create Quay.io organizations.  The name of this organization must match the GitHub organization.  Once you have an organization, a token must be created for it.  
+
+  This organization will contain the repository that will be created.  Changing the Quay.io organization requires the token to be recreated/changed too.
 
   Learn how to create a token on Quay.io for your organizations [here](https://docs.quay.io/api/) under the heading "Generating a Token (for internal application use)". You will need to provide these permissions:
 
@@ -38,9 +69,7 @@ This contains two parts:
   - View all visible repositories
   - Read/Write to any accessible repository
 
-- Quay.io organization(s)
 
-  Your Quay.io token must have access to existing Quay.io organization.  The Write API web service currently does not create Quay.io organiztaions.  Currently, a new token must be made for each organization.  The name of this organization must match the GitHub organization.
 
 ## Web Service Usage
 
@@ -53,11 +82,9 @@ export githubToken=<your token here>
 ```
 2.  The YAML configuration file.  The tokens can be entered in the top two lines.  An example of a YAML configuration file can be seen [here](https://github.com/dockstore/write_api_service/blob/develop/write-api-service/src/main/resources/example.yml).
 
-To run the service, build it and then run it using a configuration file:
+Run the service using a configuration file:
 ```
-cd write_api/write-api-service
-mvn clean install -DskipTests
-java -jar target/write-api-service-*.jar server example.yml
+java -jar write-api-service-*.jar server example.yml
 ```
 The example.yml shown previously uses port 8082 by default, this can be changed.  Note this port number, it will later be used for the Write API Client properties file.
 
@@ -96,6 +123,7 @@ It also has the following limitations
   You will need to know the URL of the Write API web service you ran previously.  If you've been using the example.yml, it should be "http://localhost:8082/api/ga4gh/v1"
 
 ## Client Usage
+
 To use the write api client, the properties file must exist and contain the necessary information.
 Here is a sample properties file:
 ```
