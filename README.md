@@ -145,7 +145,7 @@ Usage: client [options] [command] [command options]
   Options:
     --config
       Config file location.
-      Default: ~/.dockstore/write.api.config.properties
+      Default: /home/gluu/.dockstore/write.api.config.properties
     --help
       Prints help for the client.
       Default: false
@@ -177,6 +177,20 @@ Usage: client [options] [command] [command options]
             Default: false
         * --tool
             The json output from the 'add' command.
+
+    check      Checks if the tool is properly registered and Docker image is
+            available.
+      Usage: check [options]
+        Options:
+          --help
+            Prints help for the check command.
+            Default: false
+        * --id
+            The organization and repo name (e.g. ga4gh/dockstore).
+          --version
+            The version of the tool to upload to
+            Default: 1.0
+
 ```
 There are two main commands that will be used: the Add command and then the Publish Command
 ### Add command
@@ -197,12 +211,6 @@ This command interacts with the write API web service to perform several operati
 Sample Add Command Output:
 ```
 $ java -jar write-api-client-*-shaded.jar add --Dockerfile Dockerfile --cwl-file Dockstore.cwl --id dockstore-testing/travis-test
-15:51:55.511 [main] INFO io.dockstore.client.cli.Add - Handling add...
-15:51:56.509 [main] INFO io.dockstore.client.cli.Add - Created repository on git.
-15:51:59.108 [main] INFO io.dockstore.client.cli.Add - Created branch, tag, and release on git.
-15:52:04.799 [main] INFO io.dockstore.client.cli.Add - Created dockerfile on git.
-15:52:06.037 [main] INFO io.dockstore.client.cli.Add - Created descriptor on git.
-15:52:06.061 [main] INFO io.dockstore.client.cli.Add - Successfully added tool.
 {
   "githubURL": "https://github.com/dockstore-testing/travis-test",
   "quayioURL": "https://quay.io/repository/dockstore-testing/travis-test",
@@ -251,13 +259,34 @@ This command interacts with the Dockstore web service to perform several operati
 Sample Publish Command Output:
 ```
 $ java -jar write-api-client-*-shaded.jar publish --tool test.json
-INFO  [2017-05-04 20:29:40,088] io.dockstore.client.cli.Publish: Handling publish
-INFO  [2017-05-04 20:29:58,637] io.dockstore.client.cli.Publish: Successfully published tool.
+Refreshing user...
+Refreshed user
+Refreshing tool...
+Refreshed tool
+Successfully published tool.
 ```
 
 #### Result:
 
 After successfully running the Publish command, the tool should be marked as valid and available on Dockstore for everyone to use.
+
+### Check command
+
+The check command checks if the tool is properly registered on Dockstore and Docker image is available on Quay.io.
+
+It has one required parameter:
+- --id (The organization and repo name (e.g. ga4gh/dockstore))
+
+Sample Check Command Output:
+```
+$ java -jar write-api-client-*-shaded.jar check --id dockstore-testing/travis-test
+Tool properly registered and version is valid
+Docker image available
+```
+
+#### Result:
+
+After successfully running the Check command, you will definitively know that the tool was registered on Dockstore and that the image is available to be pulled from Quay.io
 
 ## Tests
 
