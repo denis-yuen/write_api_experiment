@@ -114,17 +114,17 @@ public final class Client {
      */
     @Parameters(separators = "=", commandDescription = "Add the Dockerfile and CWL file(s) using the write API.")
     private static class CommandAdd {
-        @Parameter(names = "--Dockerfile", description = "The Dockerfile to upload", required = true)
+        @Parameter(names = "--Dockerfile", description = "The Dockerfile to upload.", required = true)
         private String dockerfile;
-        @Parameter(names = "--cwl-file", description = "The cwl descriptor to upload", required = true)
+        @Parameter(names = "--cwl-file", description = "The CWL descriptor to upload.", required = true)
         private String descriptor;
-        @Parameter(names = "--cwl-secondary-file", description = "The optional secondary cwl descriptor to upload")
+        @Parameter(names = "--cwl-secondary-file", description = "The optional secondary CWL descriptor to upload.")
         private String secondaryDescriptor;
-        @Parameter(names = "--version", description = "The version of the tool to upload to", required = true)
+        @Parameter(names = "--version", description = "The version of the tool to upload to.", required = true)
         private String version = "1.0";
-        @Parameter(names = "--id", description = "The organization and repo name (e.g. ga4gh/dockstore).", required = true)
+        @Parameter(names = "--id", description = "The organization and repository name (e.g. ga4gh/dockstore).", required = true)
         private String id;
-        @Parameter(names = "--help", description = "Prints help for the add command", help = true)
+        @Parameter(names = "--help", description = "Prints help for the 'add' command.", help = true)
         private boolean help = false;
     }
 
@@ -133,33 +133,33 @@ public final class Client {
      */
     @Parameters(separators = "=", commandDescription = "Publish tool to dockstore using the output of the 'add' command.")
     private static class CommandPublish {
-        @Parameter(names = "--tool", description = "The json output from the 'add' command.", required = true)
+        @Parameter(names = "--tool", description = "The JSON output from the 'add' command.", required = true)
         private String tool;
-        @Parameter(names = "--help", description = "Prints help for the publish command.", help = true)
+        @Parameter(names = "--help", description = "Prints help for the 'publish' command.", help = true)
         private boolean help = false;
     }
 
     /**
      * The check command
      */
-    @Parameters(separators = "=", commandDescription = "Checks if the tool is properly registered and Docker image is available.")
+    @Parameters(separators = "=", commandDescription = "Check if the tool is properly registered on Dockstore and Docker image is available on Quay.io.")
     private static class CommandCheck {
-        @Parameter(names = "--id", description = "The organization and repo name (e.g. ga4gh/dockstore).", required = true)
+        @Parameter(names = "--id", description = "The organization and repository name (e.g. ga4gh/dockstore).", required = true)
         private String id;
-        @Parameter(names = "--version", description = "The version of the tool to upload to")
+        @Parameter(names = "--version", description = "The version of the tool to check.")
         private String version = "1.0";
-        @Parameter(names = "--help", description = "Prints help for the check command.", help = true)
+        @Parameter(names = "--help", description = "Prints help for the 'check' command.", help = true)
         private boolean help = false;
     }
 
     /**
      * The options before other commands
      */
-    @Parameters(separators = "=", commandDescription = "Publish or add tools")
+    @Parameters(separators = "=", commandDescription = "Add, publish, or check tools.")
     private static class CommandMain {
         @Parameter(names = "--help", description = "Prints help for the client.", help = true)
         private boolean help = false;
-        @Parameter(names = "--config", description = "Config file location.")
+        @Parameter(names = "--config", description = "Configuration/properties file location.")
         private String config =
                 System.getProperty("user.home") + File.separator + ".dockstore" + File.separator + "write.api.config.properties";
     }
