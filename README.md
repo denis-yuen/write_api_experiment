@@ -145,7 +145,7 @@ Usage: client [options] [command] [command options]
   Options:
     --config
       Config file location.
-      Default: /home/gluu/.dockstore/write.api.config.properties
+      Default: ~/.dockstore/write.api.config.properties
     --help
       Prints help for the client.
       Default: false
