@@ -40,7 +40,7 @@
     <properties>
         <swagger-ui.version>2.1.4</swagger-ui.version>
         <cwlavro.version>1.0.6</cwlavro.version>
-        <jackson.version>2.7.8</jackson.version>
+        <jackson.version>2.11.3</jackson.version>
         <jersey.version>2.23.2</jersey.version>
         <jetty.version>9.3.9.v20160517</jetty.version>
         <swagger-core-version>1.5.9</swagger-core-version>
